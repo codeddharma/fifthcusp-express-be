@@ -1,0 +1,222 @@
+{
+  "info": {
+    "name": "FifthCusp — FAQs API",
+    "_postman_id": "fifthcusp-faqs-v1",
+    "description": "CRUD endpoints for the FAQs collection. Set the `baseUrl` and `adminToken` collection variables before running.\n\n**baseUrl** — e.g. `http://localhost:5000`\n**adminToken** — Bearer token from POST /api/v1/auth/login (admin role required for write operations)",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:5000",
+      "type": "string"
+    },
+    {
+      "key": "adminToken",
+      "value": "",
+      "type": "string",
+      "description": "Paste your admin JWT access token here"
+    },
+    {
+      "key": "faqId",
+      "value": "",
+      "type": "string",
+      "description": "Auto-populated by the Create FAQ request"
+    }
+  ],
+  "item": [
+    {
+      "name": "FAQs",
+      "item": [
+        {
+          "name": "List All FAQs",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/faqs",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "faqs"]
+            },
+            "description": "Returns all FAQ documents (one per page). No auth required."
+          },
+          "response": []
+        },
+        {
+          "name": "Get FAQ by Page (home)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/faqs/page/home",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "faqs", "page", "home"]
+            },
+            "description": "Fetch the FAQ document for the home page by its page slug. No auth required."
+          },
+          "response": []
+        },
+        {
+          "name": "Get FAQ by ID",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/faqs/{{faqId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "faqs", "{{faqId}}"]
+            },
+            "description": "Fetch a single FAQ document by its MongoDB ObjectId. No auth required."
+          },
+          "response": []
+        },
+        {
+          "name": "Create FAQ",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const json = pm.response.json();",
+                  "if (json.data && json.data._id) {",
+                  "  pm.collectionVariables.set('faqId', json.data._id);",
+                  "  console.log('faqId set to', json.data._id);",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{adminToken}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"page\": \"about\",\n  \"faqs\": [\n    {\n      \"question\": \"Who founded The Fifth Cusp?\",\n      \"answer\": \"The Fifth Cusp was founded by a team of Vedic astrology enthusiasts and spiritual wellness practitioners who wanted to make authentic astrological guidance accessible to everyone.\",\n      \"isActive\": true\n    },\n    {\n      \"question\": \"What makes The Fifth Cusp different?\",\n      \"answer\": \"We combine traditional Vedic astrology with modern technology to deliver personalised, accurate, and actionable insights — not generic predictions.\",\n      \"isActive\": true\n    }\n  ]\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/faqs",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "faqs"]
+            },
+            "description": "Create a new FAQ document for a page. Admin JWT required.\n\nThe test script auto-saves the new `_id` into the `faqId` collection variable."
+          },
+          "response": []
+        },
+        {
+          "name": "Update FAQ",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{adminToken}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"faqs\": [\n    {\n      \"question\": \"Who founded The Fifth Cusp?\",\n      \"answer\": \"Updated answer here.\",\n      \"isActive\": true\n    }\n  ]\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/faqs/{{faqId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "faqs", "{{faqId}}"]
+            },
+            "description": "Partial update — send only the fields you want to change. Admin JWT required."
+          },
+          "response": []
+        },
+        {
+          "name": "Delete FAQ",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{adminToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/faqs/{{faqId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "faqs", "{{faqId}}"]
+            },
+            "description": "Permanently delete a FAQ document. Admin JWT required."
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Auth (get token)",
+      "item": [
+        {
+          "name": "Login",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const json = pm.response.json();",
+                  "if (json.data && json.data.accessToken) {",
+                  "  pm.collectionVariables.set('adminToken', json.data.accessToken);",
+                  "  console.log('adminToken saved');",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"admin@fifthcusp.com\",\n  \"password\": \"yourpassword\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/auth/login",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "auth", "login"]
+            },
+            "description": "Login as admin. The test script automatically saves the `accessToken` into the `adminToken` collection variable so all subsequent admin requests are authenticated."
+          },
+          "response": []
+        }
+      ]
+    }
+  ]
+}
