@@ -1,6 +1,6 @@
 import { Document, model, Schema } from 'mongoose'
 
-export type ServiceType = 'basic' | 'advanced'
+export type ServiceType = 'basic' | 'advanced' | 'numerology' | 'consultation' | 'reports_basic' | 'reports_advanced'
 
 export interface IService extends Document {
   title: string
@@ -8,6 +8,7 @@ export interface IService extends Document {
   description: string
   price: number
   type: ServiceType
+  pages: string[]
   isInSale: boolean
   saleTitle?: string
   hasSaleBanner: boolean
@@ -23,7 +24,8 @@ const ServiceSchema = new Schema<IService>(
     subtitle: { type: String, required: true, trim: true },
     description: { type: String, required: true, trim: true },
     price: { type: Number, required: true, min: 0 },
-    type: { type: String, enum: ['basic', 'advanced'], default: 'basic', required: true },
+    type: { type: String, enum: ['basic', 'advanced', 'numerology', 'consultation', 'reports_basic', 'reports_advanced'], required: true },
+    pages: { type: [String], required: true },
     isInSale: { type: Boolean, default: false },
     saleTitle: { type: String, trim: true },
     hasSaleBanner: { type: Boolean, default: false },

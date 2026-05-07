@@ -4,6 +4,76 @@ import { Faq, IFaq } from '../models/Faq'
 
 const SEED_DATA: Partial<IFaq>[] = [
   {
+    page: 'astrology',
+    faqs: [
+      {
+        question: 'What is Vedic astrology and how does it differ from Western astrology?',
+        answer:
+          'Vedic astrology (Jyotish) is an ancient Indian system that uses the sidereal zodiac — aligned with the actual positions of constellations — while Western astrology uses the tropical zodiac. Vedic astrology places greater emphasis on the Moon sign, rising sign, and planetary dashas (time periods) for predictions.',
+        isActive: true,
+      },
+      {
+        question: 'What information do I need to provide for my reading?',
+        answer:
+          'You will need your date of birth, exact time of birth, and place of birth. The birth time is especially important in Vedic astrology as even a few minutes can shift your ascendant and change the entire chart interpretation.',
+        isActive: true,
+      },
+      {
+        question: 'How accurate are astrological predictions?',
+        answer:
+          'Vedic astrology identifies planetary tendencies and time periods rather than fixed outcomes. Accuracy depends on the precision of your birth data and the experience of the astrologer. Our practitioners focus on actionable guidance over generic predictions, helping you make informed decisions.',
+        isActive: true,
+      },
+      {
+        question: 'What is a dasha period and why does it matter?',
+        answer:
+          'A dasha is a planetary time period in Vedic astrology that governs the themes and events active in your life at any given time. Knowing your current and upcoming dasha allows your astrologer to pinpoint favourable windows for career moves, relationships, travel, and spiritual practices.',
+        isActive: true,
+      },
+      {
+        question: 'Can astrology help with specific life decisions?',
+        answer:
+          'Yes. Astrology is particularly useful for timing major decisions — choosing a wedding date, starting a business, relocating, or beginning a new career. Our astrologers use muhurta (electional astrology) to identify the most auspicious timings aligned with your personal chart.',
+        isActive: true,
+      },
+    ],
+  },
+  {
+    page: 'energy',
+    faqs: [
+      {
+        question: 'What is an energy reading?',
+        answer:
+          'An energy reading is a spiritual assessment of your personal aura and energetic field. Our practitioners sense blockages, imbalances, and strengths in your energy centres (chakras) to provide guidance on healing and growth.',
+        isActive: true,
+      },
+      {
+        question: 'How do chakras affect my daily life?',
+        answer:
+          'Your seven main chakras govern everything from physical health and emotions to communication and intuition. When one or more are blocked or overactive, you may experience anxiety, fatigue, relationship issues, or a general sense of being stuck.',
+        isActive: true,
+      },
+      {
+        question: 'What can I expect during an energy healing session?',
+        answer:
+          'Sessions are conducted remotely or in person. You will be guided into a relaxed state while the practitioner scans and clears your energy field using techniques such as Reiki, pranic healing, or sound therapy. Most clients report feeling lighter and more centred afterwards.',
+        isActive: true,
+      },
+      {
+        question: 'How many sessions will I need?',
+        answer:
+          'This varies by individual. Some experience significant shifts in a single session, while deeper patterns may benefit from three to six sessions spaced one to two weeks apart. Your practitioner will recommend a plan after your initial assessment.',
+        isActive: true,
+      },
+      {
+        question: 'Can energy work complement my medical treatment?',
+        answer:
+          'Yes. Energy healing is a holistic complementary practice and is not a substitute for medical care. It works alongside conventional treatment to support emotional wellbeing, reduce stress, and accelerate the body\'s natural recovery process.',
+        isActive: true,
+      },
+    ],
+  },
+  {
     page: 'home',
     faqs: [
       {
