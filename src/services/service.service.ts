@@ -368,6 +368,60 @@ const SEED_DATA: Partial<IService>[] = [
     discountPercentage: 0,
     isActiveService: true,
   },
+  // ── Vastu — Basic ─────────────────────────────────────────────────────────────
+  {
+    title: 'Home Vastu Consultation',
+    subtitle: 'Directional analysis & dosha remedies for your home',
+    description:
+      'A comprehensive Vastu assessment of your home covering all eight directions, room placements, entrance analysis, and elemental balance. Includes a detailed remedies report with easy-to-implement corrections to enhance health, harmony, and prosperity.',
+    price: 2499,
+    type: 'basic',
+    pages: ['vastu'],
+    isInSale: false,
+    hasSaleBanner: false,
+    discountPercentage: 0,
+    isActiveService: true,
+  },
+  {
+    title: 'Office Vastu Consultation',
+    subtitle: 'Workspace layout & energy flow optimisation',
+    description:
+      'Optimise your workplace for productivity, positive relationships, and financial growth. Covers seating directions, cash box placement, reception area, and team zone layouts — with practical remedies that require no major structural work.',
+    price: 2999,
+    type: 'basic',
+    pages: ['vastu'],
+    isInSale: true,
+    saleTitle: 'Business Booster',
+    hasSaleBanner: true,
+    discountPercentage: 10,
+    isActiveService: true,
+  },
+  {
+    title: 'Vastu for New Property',
+    subtitle: 'Site assessment before buying or renting',
+    description:
+      'Evaluate a property before committing. Covers plot shape, road facing, surrounding environment, internal layout, and key directional factors. Receive a clear buy / avoid recommendation with supporting analysis.',
+    price: 1999,
+    type: 'basic',
+    pages: ['vastu'],
+    isInSale: false,
+    hasSaleBanner: false,
+    discountPercentage: 0,
+    isActiveService: true,
+  },
+  {
+    title: 'Vastu Remedies Report',
+    subtitle: 'Personalised written remedies without structural changes',
+    description:
+      'Already living or working in a space with Vastu doshas? This service provides a tailored written remedies report using colours, mirrors, plants, crystals, and furniture repositioning — zero demolition required.',
+    price: 1499,
+    type: 'basic',
+    pages: ['vastu'],
+    isInSale: false,
+    hasSaleBanner: false,
+    discountPercentage: 0,
+    isActiveService: true,
+  },
 ]
 
 export async function getAllServices(onlyActive = false, type?: ServiceType, page?: string): Promise<IService[]> {

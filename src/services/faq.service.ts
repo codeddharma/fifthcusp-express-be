@@ -4,6 +4,41 @@ import { Faq, IFaq } from '../models/Faq'
 
 const SEED_DATA: Partial<IFaq>[] = [
   {
+    page: 'vastu',
+    faqs: [
+      {
+        question: 'What is Vastu Shastra?',
+        answer:
+          'Vastu Shastra is an ancient Indian science of architecture and spatial arrangement that aligns a building with natural energies and the five elements — earth, water, fire, air, and space. When a home or workplace is Vastu-compliant, it supports the wellbeing, prosperity, and harmony of its occupants.',
+        isActive: true,
+      },
+      {
+        question: 'Do I need to make structural changes to follow Vastu?',
+        answer:
+          'Not necessarily. Most Vastu doshas (imbalances) can be corrected using non-structural remedies such as repositioning furniture, changing colours, adding plants or crystals, using mirrors, or placing specific symbols. Structural changes are only recommended when doshas are severe and other remedies are insufficient.',
+        isActive: true,
+      },
+      {
+        question: 'Can Vastu be applied to a rented property?',
+        answer:
+          'Yes. Many Vastu remedies are entirely non-structural and renter-friendly — such as adjusting furniture layout, using colour therapy, adding Vastu plants, or placing energetic corrections. Our consultants specialise in practical solutions that work within rental constraints.',
+        isActive: true,
+      },
+      {
+        question: 'How long does it take to see results after Vastu corrections?',
+        answer:
+          'Most people begin to notice a shift in energy within 21 to 40 days of implementing remedies. Significant life changes — such as improved finances or reduced conflicts — typically become apparent within three to six months, depending on the severity of the original doshas.',
+        isActive: true,
+      },
+      {
+        question: 'Is the Vastu consultation done online or in person?',
+        answer:
+          'We offer both. Online consultations are conducted via video call using your floor plan and photos of the property. In-person visits are available for clients in select cities. Both formats deliver the same depth of analysis and remedies.',
+        isActive: true,
+      },
+    ],
+  },
+  {
     page: 'astrology',
     faqs: [
       {
