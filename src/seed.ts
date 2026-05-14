@@ -4,6 +4,7 @@ import { seedServices } from './services/service.service'
 import { seedFaqs } from './services/faq.service'
 import { seedTestimonials } from './services/testimonial.service'
 import { seedJobOpenings } from './services/jobOpening.service'
+import { seedBlogs } from './services/blog.service'
 
 async function runSeeds() {
   await connectDB()
@@ -11,6 +12,7 @@ async function runSeeds() {
   await seedFaqs()
   await seedTestimonials()
   await seedJobOpenings()
+  await seedBlogs()
   console.log('All seeds completed')
   process.exit(0)
 }
