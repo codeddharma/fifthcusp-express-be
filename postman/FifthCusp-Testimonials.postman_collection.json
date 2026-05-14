@@ -1,0 +1,290 @@
+{
+  "info": {
+    "name": "FifthCusp — Testimonials API",
+    "_postman_id": "fifthcusp-testimonials-v1",
+    "description": "CRUD endpoints for the Testimonials collection. Set the `baseUrl` and `adminToken` collection variables before running.\n\n**baseUrl** — e.g. `http://localhost:5000`\n**adminToken** — Bearer token from POST /api/v1/auth/login (admin role required for write operations)",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:5000",
+      "type": "string"
+    },
+    {
+      "key": "adminToken",
+      "value": "",
+      "type": "string",
+      "description": "Paste your admin JWT access token here"
+    },
+    {
+      "key": "testimonialId",
+      "value": "",
+      "type": "string",
+      "description": "Auto-populated by the Create Testimonial request"
+    }
+  ],
+  "item": [
+    {
+      "name": "Testimonials",
+      "item": [
+        {
+          "name": "List All Testimonials",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/testimonials",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "testimonials"]
+            },
+            "description": "Returns all testimonials sorted by newest first. No auth required.\n\nOptional query params:\n- `isApproved=true` — only approved testimonials\n- `isRejected=true` — only rejected testimonials"
+          },
+          "response": []
+        },
+        {
+          "name": "List Approved Testimonials",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/testimonials?isApproved=true",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "testimonials"],
+              "query": [
+                {
+                  "key": "isApproved",
+                  "value": "true"
+                }
+              ]
+            },
+            "description": "Returns only approved testimonials. Useful for the public-facing website display. No auth required."
+          },
+          "response": []
+        },
+        {
+          "name": "List Pending Testimonials",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/testimonials?isApproved=false&isRejected=false",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "testimonials"],
+              "query": [
+                {
+                  "key": "isApproved",
+                  "value": "false"
+                },
+                {
+                  "key": "isRejected",
+                  "value": "false"
+                }
+              ]
+            },
+            "description": "Returns testimonials that are neither approved nor rejected (awaiting review). No auth required."
+          },
+          "response": []
+        },
+        {
+          "name": "Get Testimonial by ID",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/testimonials/{{testimonialId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "testimonials", "{{testimonialId}}"]
+            },
+            "description": "Fetch a single testimonial by its MongoDB ObjectId. No auth required."
+          },
+          "response": []
+        },
+        {
+          "name": "Create Testimonial",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const json = pm.response.json();",
+                  "if (json.data && json.data._id) {",
+                  "  pm.collectionVariables.set('testimonialId', json.data._id);",
+                  "  console.log('testimonialId set to', json.data._id);",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{adminToken}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"clientName\": \"Rohit Verma\",\n  \"feedback\": \"The consultation on material selection was incredibly insightful. I had no idea that the metals and fabrics in my living space were contributing to my stress levels. After making the recommended changes, the atmosphere at home feels noticeably calmer.\",\n  \"services\": [\"material\"]\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/testimonials",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "testimonials"]
+            },
+            "description": "Create a new testimonial. Admin JWT required.\n\nThe test script auto-saves the new `_id` into the `testimonialId` collection variable.\n\nNew testimonials default to `isApproved: false, isRejected: false`."
+          },
+          "response": []
+        },
+        {
+          "name": "Update Testimonial",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{adminToken}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"clientName\": \"Rohit Verma\",\n  \"feedback\": \"Updated feedback text here.\",\n  \"services\": [\"material\", \"vastu\"]\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/testimonials/{{testimonialId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "testimonials", "{{testimonialId}}"]
+            },
+            "description": "Partial update — send only the fields you want to change (`clientName`, `feedback`, `services`). Admin JWT required."
+          },
+          "response": []
+        },
+        {
+          "name": "Approve Testimonial",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{adminToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/testimonials/{{testimonialId}}/approve",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "testimonials", "{{testimonialId}}", "approve"]
+            },
+            "description": "Approve a testimonial. Sets `isApproved: true`, `isRejected: false`, and records `approvedAt` timestamp. Admin JWT required."
+          },
+          "response": []
+        },
+        {
+          "name": "Reject Testimonial",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{adminToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/testimonials/{{testimonialId}}/reject",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "testimonials", "{{testimonialId}}", "reject"]
+            },
+            "description": "Reject a testimonial. Sets `isRejected: true`, `isApproved: false`, and records `rejectedAt` timestamp. Admin JWT required."
+          },
+          "response": []
+        },
+        {
+          "name": "Delete Testimonial",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{adminToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/testimonials/{{testimonialId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "testimonials", "{{testimonialId}}"]
+            },
+            "description": "Permanently delete a testimonial. Admin JWT required."
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Auth (get token)",
+      "item": [
+        {
+          "name": "Login",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const json = pm.response.json();",
+                  "if (json.data && json.data.accessToken) {",
+                  "  pm.collectionVariables.set('adminToken', json.data.accessToken);",
+                  "  console.log('adminToken saved');",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"admin@fifthcusp.com\",\n  \"password\": \"yourpassword\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/auth/login",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "auth", "login"]
+            },
+            "description": "Login as admin. The test script automatically saves the `accessToken` into the `adminToken` collection variable so all subsequent admin requests are authenticated."
+          },
+          "response": []
+        }
+      ]
+    }
+  ]
+}

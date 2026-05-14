@@ -109,6 +109,53 @@ const SEED_DATA: Partial<IFaq>[] = [
     ],
   },
   {
+    page: 'material',
+    faqs: [
+      {
+        question: 'What is the Individual Wealth Programme?',
+        answer:
+          'The Individual Wealth Programme is a personalised wealth blueprint that analyses everything governing your money energy — your earning potential, wealth blocks, best income channels, manifestation frequency, and abundance rituals — to map a step-by-step path toward long-term financial stability and freedom.',
+        isActive: true,
+      },
+      {
+        question: 'Who is the Business Consulting programme for?',
+        answer:
+          'It is designed for founders and businesses at every stage — from pre-seed ideas to fully operational companies seeking clarity, growth, and higher profitability. Whether you are building from scratch or optimising an existing company, the programme blends astrology, Vastu, financial logic, and operational strategy to align your business with its strongest earning potential.',
+        isActive: true,
+      },
+      {
+        question: 'What does the Business Consulting process involve?',
+        answer:
+          'The consultation covers founder chart analysis, leadership alignment, business timelines, planetary success periods, vendor vetting, site selection, manufacturing layouts, process efficiency, manpower structuring, product positioning, pricing strategy, marketing funnels, and market entry roadmaps. Every recommendation is tied to tangible KPIs, ROI projections, and cost-benefit analysis.',
+        isActive: true,
+      },
+      {
+        question: 'What is the Abundance Programme and how is it different from the Wealth Programme?',
+        answer:
+          'The Abundance Programme is an inner-work transformation that rewires your wealth frequency at the subconscious level — dissolving limiting beliefs, ancestral imprints, and energetic leaks. The Individual Wealth Programme focuses on the external blueprint (income channels, financial strategy), while the Abundance Programme focuses on the internal shift that makes you a natural magnet for wealth.',
+        isActive: true,
+      },
+      {
+        question: 'What do I receive in the Abundance Programme?',
+        answer:
+          'You receive personalised affirmations, vision boards, wealth rituals, identity elevation practices, environmental and Vastu corrections, chakra recalibration, aura strengthening, and astrological timelines highlighting your most potent periods for growth and opportunity.',
+        isActive: true,
+      },
+      {
+        question: 'Are slots for the Abundance Programme limited?',
+        answer:
+          'Yes. The Abundance Programme is open for limited slots only to ensure each participant receives focused, personalised attention. If the programme is full, you can join the waiting list and will be offered a slot on a priority basis.',
+        isActive: true,
+      },
+      {
+        question: 'How long do these programmes take?',
+        answer:
+          'Programme duration varies based on individual needs and is discussed during the initial consultation. Each programme is customised, so timelines are set collaboratively to ensure you receive the depth of work your goals require.',
+        isActive: true,
+      },
+    ],
+  },
+  {
     page: 'home',
     faqs: [
       {

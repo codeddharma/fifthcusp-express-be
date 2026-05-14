@@ -368,6 +368,46 @@ const SEED_DATA: Partial<IService>[] = [
     discountPercentage: 0,
     isActiveService: true,
   },
+  // ── Material — Programmes ─────────────────────────────────────────────────────
+  {
+    title: 'Individual Wealth Programme',
+    subtitle: 'A personalised wealth blueprint for your money energy',
+    description:
+      'A personalised wealth blueprint which takes into account everything which governs your money energy. This program identifies your earning potential, your wealth blocks, your best income channels, manifestation frequency, abundance rituals, and a step wise path to building long term financial stability and freedom.',
+    price: 0,
+    type: 'advanced',
+    pages: ['material'],
+    isInSale: false,
+    hasSaleBanner: false,
+    discountPercentage: 0,
+    isActiveService: true,
+  },
+  {
+    title: 'Business Consulting',
+    subtitle: 'Strategic and energetic optimisation for founders and businesses',
+    description:
+      'A strategic and energetic optimisation programme for founders and businesses across all stages, from pre-seed ideas to fully operational companies seeking clarity, growth, and higher profitability.\n\nThis consultation blends astrology, Vastu, operational insight, financial logic, and practical business psychology to align your organisation with its strongest earning potential.\n\nWe evaluate founder charts, leadership alignment, business timelines, planetary success periods, and energetic strengths to understand the natural rhythm and scalability of the business.\n\nSimultaneously, we fine tune real world aspects such as vendor vetting, site selection, manufacturing layouts, process efficiency, manpower structuring, machinery choices, supply chain integrity, product positioning, pricing strategy, marketing funnels, customer segments, and market entry roadmaps.\n\nWe identify energy leaks in the business, both operational and energetic, and align your physical space, workflows, and decision making with your most favourable zones for revenue, visibility, and long-term growth.\n\nEvery recommendation is tied to tangible KPIs, ROI projections, cost benefit analysis, and industry specific realities so your decisions feel informed, timely, and strategically grounded.\n\nWhether you are building from zero or optimising an existing company, this process removes uncertainty, eliminates hit and trial strategies, reduces risk, prevents avoidable losses, improves cash flow, accelerates your break-even timeline, and strengthens your overall business architecture.\n\nThis is where commercial intelligence meets energetic precision so your business stops relying on guesswork and starts operating from clarity, alignment, and measurable outcomes.\n\nA business that matches its energetic signature becomes easier to scale, more resilient, and naturally profitable.',
+    price: 0,
+    type: 'advanced',
+    pages: ['material'],
+    isInSale: false,
+    hasSaleBanner: false,
+    discountPercentage: 0,
+    isActiveService: true,
+  },
+  {
+    title: 'Abundance Programme',
+    subtitle: 'Rewire your wealth frequency from the inside out',
+    description:
+      'A transformational inner work programme that rewires your wealth frequency from the inside out, guiding you into a reality where abundance is not something you pursue or have to grind for. It is something you naturally emanate. It builds a smooth eco-system of finances for you.\n\nThis programme changes your relationship with money and makes it easy for you to attract money 24x7. It allows you the freedom of your money working for you, not the other way around. It dissolves the limiting beliefs, subconscious patterns, emotional residues, ancestral imprints, and energetic leaks that restrict the flow of money into your life. You learn the resonating beliefs, your energies are elevated, your chakras are recalibrated, your aura is strengthened, and your manifestation field expands into a powerful, magnetic space capable of attracting and sustaining greater prosperity like it\'s your second nature.\n\nAs your inner system strengthens, you receive personalised affirmations, vision boards, wealth rituals, identity elevation practices, environmental and Vastu corrections, and astrological timelines that reveal your most potent periods for growth and opportunity.\n\nWhat we will be working with is a complete reprogramming of how you attract, receive, and sustain wealth. You rise into a self that no longer strives for abundance from the outside. You become the source of it. Money comes to you naturally, and with ease.\n\nIt is open for limited slots only! If the list is full, you can join the waiting list and you will be offered the slot on a priority basis.',
+    price: 0,
+    type: 'advanced',
+    pages: ['material'],
+    isInSale: false,
+    hasSaleBanner: false,
+    discountPercentage: 0,
+    isActiveService: true,
+  },
   // ── Vastu — Basic ─────────────────────────────────────────────────────────────
   {
     title: 'Home Vastu Consultation',

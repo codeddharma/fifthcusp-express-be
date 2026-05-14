@@ -4,6 +4,7 @@ import userRoutes from './user.routes'
 import pageContentRoutes from './pageContent.routes'
 import serviceRoutes from './service.routes'
 import faqRoutes from './faq.routes'
+import testimonialRoutes from './testimonial.routes'
 
 const router = Router()
 
@@ -16,5 +17,6 @@ router.use('/users', userRoutes)
 router.use('/content', pageContentRoutes)
 router.use('/services', serviceRoutes)
 router.use('/faqs', faqRoutes)
+router.use('/testimonials', testimonialRoutes)
 
 export default router
