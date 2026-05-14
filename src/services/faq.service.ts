@@ -156,6 +156,47 @@ const SEED_DATA: Partial<IFaq>[] = [
     ],
   },
   {
+    page: 'tarot',
+    faqs: [
+      {
+        question: 'What is tarot reading and how does it work?',
+        answer:
+          'Tarot is a symbolic guidance system using a deck of 78 cards, each carrying archetypal imagery that reflects universal human experiences. A reader draws cards in response to your question or situation and interprets the symbols, positions, and combinations to provide insight into the energies at play and the most likely paths forward.',
+        isActive: true,
+      },
+      {
+        question: 'Do I need to believe in tarot for it to work?',
+        answer:
+          'No prior belief is required. Tarot works as a reflective tool — the cards act as a mirror for your subconscious mind and current circumstances. Many clients who approach readings with healthy scepticism find the process genuinely illuminating because it prompts deeper self-reflection rather than passive prediction.',
+        isActive: true,
+      },
+      {
+        question: 'What information do I need to provide for a reading?',
+        answer:
+          'For most readings, all you need to provide is your question or the area of life you would like guidance on — relationships, career, finances, spirituality, or a general overview. For combination readings that incorporate astrology, your date, time, and place of birth are also required.',
+        isActive: true,
+      },
+      {
+        question: 'How accurate are tarot readings?',
+        answer:
+          'Tarot reflects the energies and tendencies present at the time of the reading rather than fixed, unchangeable outcomes. Accuracy is influenced by the clarity of your question, your openness during the session, and the experience of the reader. Our practitioners focus on meaningful, actionable guidance over vague generalisations.',
+        isActive: true,
+      },
+      {
+        question: 'Can tarot predict the future?',
+        answer:
+          'Tarot reveals probable outcomes based on current energies and choices — not a fixed, inevitable future. Think of it as a GPS: it shows the most likely destination given your current route, but you always have the power to make a turn. Readings are most valuable when used as a tool for reflection and conscious decision-making.',
+        isActive: true,
+      },
+      {
+        question: 'How often should I get a tarot reading?',
+        answer:
+          'This depends on your goals. A monthly pull or quarterly Celtic Cross is ideal for ongoing guidance. If you are navigating a specific situation — a career change, relationship challenge, or major decision — a focused reading at the time of the event is most useful. Avoid seeking readings too frequently on the same question, as the cards reflect energy that needs time to unfold.',
+        isActive: true,
+      },
+    ],
+  },
+  {
     page: 'home',
     faqs: [
       {
