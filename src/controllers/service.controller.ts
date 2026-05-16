@@ -11,6 +11,56 @@ import { HttpMessage, HttpStatus } from '../utils/httpStatus'
 const ASTROLOGY_TYPES = ['numerology', 'consultation', 'reports_basic', 'reports_advanced'] as const
 const GENERIC_TYPES = ['basic', 'advanced', 'practice'] as const
 
+const FIELD_TYPES = ['text', 'textarea', 'email', 'password', 'phonenumber', 'dropdown', 'multiSelect', 'radio', 'date', 'number', 'checkbox'] as const
+
+const formInputValidationSchema = z.object({
+  minLength: z.number().int().min(0).optional(),
+  maxLength: z.number().int().min(1).optional(),
+  pattern: z.string().optional(),
+  minDate: z.string().optional(),
+  maxDate: z.string().optional(),
+  min: z.number().optional(),
+  max: z.number().optional(),
+})
+
+const formInputSchema = z.object({
+  fieldKey: z.string().min(1),
+  label: z.string().min(1),
+  type: z.enum(FIELD_TYPES),
+  isRequired: z.boolean(),
+  placeholder: z.string().optional(),
+  tooltip: z.string().optional(),
+  options: z.array(z.string()).optional(),
+  validation: formInputValidationSchema.optional(),
+  order: z.number().int().min(0),
+})
+
+const fileUploadSchema = z.object({
+  fieldKey: z.string().min(1),
+  label: z.string().min(1),
+  tooltip: z.string().optional(),
+  acceptedTypes: z.array(z.string().min(1)).min(1),
+  maxFiles: z.number().int().min(1).default(1),
+  maxFileSizeMB: z.number().min(0.1).max(100).default(5),
+  isRequired: z.boolean(),
+  order: z.number().int().min(0),
+})
+
+const addOnSchema = z.object({
+  key: z.string().min(1),
+  label: z.string().min(1),
+  description: z.string().optional(),
+  price: z.number().min(0),
+  formInputs: z.array(formInputSchema).optional().default([]),
+  fileUploads: z.array(fileUploadSchema).optional().default([]),
+})
+
+const repeatableGroupSchema = z.object({
+  enabled: z.boolean(),
+  label: z.string().min(1),
+  maxRepeats: z.number().int().min(1).max(20).default(1),
+})
+
 const serviceTypeValidation = (schema: z.ZodObject<z.ZodRawShape>) =>
   schema.superRefine((data, ctx) => {
     const isAstrologyPage = data.pages?.includes('astrology')
@@ -39,6 +89,10 @@ const createServiceSchema = serviceTypeValidation(
     price: z.number().min(0),
     type: z.enum(['basic', 'advanced', 'practice', 'numerology', 'consultation', 'reports_basic', 'reports_advanced']),
     pages: z.array(z.string().min(1)).min(1),
+    formInputs: z.array(formInputSchema).optional().default([]),
+    fileUploads: z.array(fileUploadSchema).optional().default([]),
+    addOns: z.array(addOnSchema).optional().default([]),
+    repeatableGroup: repeatableGroupSchema.optional(),
     isInSale: z.boolean().optional(),
     saleTitle: z.string().optional(),
     hasSaleBanner: z.boolean().optional(),
@@ -55,6 +109,10 @@ const updateServiceSchema = serviceTypeValidation(
     price: z.number().min(0).optional(),
     type: z.enum(['basic', 'advanced', 'practice', 'numerology', 'consultation', 'reports_basic', 'reports_advanced']).optional(),
     pages: z.array(z.string().min(1)).min(1).optional(),
+    formInputs: z.array(formInputSchema).optional(),
+    fileUploads: z.array(fileUploadSchema).optional(),
+    addOns: z.array(addOnSchema).optional(),
+    repeatableGroup: repeatableGroupSchema.optional(),
     isInSale: z.boolean().optional(),
     saleTitle: z.string().optional(),
     hasSaleBanner: z.boolean().optional(),

@@ -1,7 +1,85 @@
 import { SortOrder } from 'mongoose'
 import { ApiError } from '../utils/ApiError'
 import { HttpMessage, HttpStatus } from '../utils/httpStatus'
-import { IService, Service, ServiceType } from '../models/Service'
+import { FieldType, IFileUploadField, IFormInput, IService, Service, ServiceType } from '../models/Service'
+
+// ─── SKU generator ────────────────────────────────────────────────────────────
+
+export function generateSku(title: string): string {
+  const slug = title.trim().toUpperCase().replace(/[^A-Z0-9]+/g, '-').replace(/^-|-$/g, '')
+  const rand = Math.random().toString(16).slice(2, 6)
+  return `SVC-${slug}-${rand}`
+}
+
+// ─── Shared field helpers ─────────────────────────────────────────────────────
+
+const f = (fieldKey: string, label: string, type: FieldType, isRequired: boolean, order: number, extra: Partial<IFormInput> = {}): IFormInput => ({
+  fieldKey,
+  label,
+  type,
+  isRequired,
+  order,
+  ...extra,
+})
+
+const basicPersonal = (startOrder = 0): IFormInput[] => [
+  f('firstName', 'First Name', 'text', true, startOrder, { placeholder: 'Enter your first name' }),
+  f('lastName', 'Last Name', 'text', true, startOrder + 1, { placeholder: 'Enter your last name' }),
+  f('email', 'Email Address', 'email', true, startOrder + 2, { placeholder: 'your@email.com' }),
+  f('phone', 'Phone Number', 'phonenumber', true, startOrder + 3),
+]
+
+const kundaliFields = (startOrder = 0): IFormInput[] => [
+  ...basicPersonal(startOrder),
+  f('dateOfBirth', 'Date of Birth', 'date', true, startOrder + 4, { validation: { maxDate: 'today' } }),
+  f('birthTime', 'Birth Time', 'text', false, startOrder + 5, {
+    placeholder: 'e.g. 10:30 AM',
+    tooltip: 'Exact birth time significantly improves reading accuracy. Approximate is fine if unknown.',
+  }),
+  f('birthPlace', 'Birth Place', 'text', true, startOrder + 6, { placeholder: 'City, State, Country' }),
+]
+
+const partnerKundaliFields = (startOrder = 7): IFormInput[] => [
+  f('partnerFirstName', "Partner's First Name", 'text', true, startOrder),
+  f('partnerLastName', "Partner's Last Name", 'text', true, startOrder + 1),
+  f('partnerDateOfBirth', "Partner's Date of Birth", 'date', true, startOrder + 2, { validation: { maxDate: 'today' } }),
+  f('partnerBirthTime', "Partner's Birth Time", 'text', false, startOrder + 3, {
+    placeholder: 'e.g. 10:30 AM',
+    tooltip: 'Approximate birth time is fine.',
+  }),
+  f('partnerBirthPlace', "Partner's Birth Place", 'text', true, startOrder + 4, { placeholder: 'City, State, Country' }),
+]
+
+const questionField = (order: number): IFormInput =>
+  f('question', 'Your Question', 'textarea', false, order, {
+    placeholder: 'What specific question or area would you like guidance on?',
+    tooltip: 'Providing a focused question helps tailor the reading to your needs.',
+    validation: { maxLength: 500 },
+  })
+
+const floorPlanUpload = (order = 0): IFileUploadField => ({
+  fieldKey: 'floorPlan',
+  label: 'Floor Plan / Layout',
+  tooltip: 'Upload your floor plan or a hand-drawn sketch. Clear photos of each room are also accepted.',
+  acceptedTypes: ['pdf', 'jpg', 'jpeg', 'png'],
+  maxFiles: 3,
+  maxFileSizeMB: 10,
+  isRequired: true,
+  order,
+})
+
+const kundaliDocUpload = (order = 0, isRequired = false): IFileUploadField => ({
+  fieldKey: 'kundaliDocument',
+  label: 'Existing Kundali Document (optional)',
+  tooltip: 'Upload your existing kundali PDF or image if you have one. Not required — we generate it from your birth details.',
+  acceptedTypes: ['pdf', 'jpg', 'jpeg', 'png'],
+  maxFiles: 1,
+  maxFileSizeMB: 5,
+  isRequired,
+  order,
+})
+
+// ─── Seed data ────────────────────────────────────────────────────────────────
 
 const SEED_DATA: Partial<IService>[] = [
   // ── Home — Basic ──────────────────────────────────────────────────────────────
@@ -17,6 +95,26 @@ const SEED_DATA: Partial<IService>[] = [
     hasSaleBanner: false,
     discountPercentage: 0,
     isActiveService: true,
+    formInputs: [
+      ...kundaliFields(),
+      questionField(7),
+    ],
+    fileUploads: [kundaliDocUpload(0)],
+    addOns: [
+      {
+        key: 'partnerKundali',
+        label: 'Add Partner Kundali Reading',
+        description: 'Include a reading for your partner or spouse in the same session.',
+        price: 799,
+        formInputs: partnerKundaliFields(),
+        fileUploads: [],
+      },
+    ],
+    repeatableGroup: {
+      enabled: true,
+      label: 'Add Another Person',
+      maxRepeats: 5,
+    },
   },
   {
     title: 'Kundali Milan',
@@ -30,6 +128,12 @@ const SEED_DATA: Partial<IService>[] = [
     hasSaleBanner: false,
     discountPercentage: 0,
     isActiveService: true,
+    formInputs: [
+      ...kundaliFields(),
+      ...partnerKundaliFields(7),
+    ],
+    fileUploads: [],
+    addOns: [],
   },
   {
     title: 'Career & Finance Horoscope',
@@ -43,6 +147,13 @@ const SEED_DATA: Partial<IService>[] = [
     hasSaleBanner: false,
     discountPercentage: 0,
     isActiveService: true,
+    formInputs: [
+      ...kundaliFields(),
+      f('currentOccupation', 'Current Occupation', 'text', false, 7, { placeholder: 'e.g. Software Engineer, Business Owner' }),
+      questionField(8),
+    ],
+    fileUploads: [],
+    addOns: [],
   },
   {
     title: 'Numerology Analysis',
@@ -56,6 +167,16 @@ const SEED_DATA: Partial<IService>[] = [
     hasSaleBanner: false,
     discountPercentage: 0,
     isActiveService: true,
+    formInputs: [
+      ...basicPersonal(),
+      f('fullName', 'Full Name (as on birth certificate)', 'text', true, 4, {
+        placeholder: 'Enter your full legal name',
+        tooltip: 'Your full name as it appears on your birth certificate is used to calculate your destiny and soul urge numbers.',
+      }),
+      f('dateOfBirth', 'Date of Birth', 'date', true, 5, { validation: { maxDate: 'today' } }),
+    ],
+    fileUploads: [],
+    addOns: [],
   },
   {
     title: 'Vastu Consultation',
@@ -69,6 +190,18 @@ const SEED_DATA: Partial<IService>[] = [
     hasSaleBanner: false,
     discountPercentage: 0,
     isActiveService: true,
+    formInputs: [
+      ...basicPersonal(),
+      f('propertyType', 'Property Type', 'dropdown', true, 4, { options: ['Home', 'Office', 'Shop', 'Factory', 'Other'] }),
+      f('propertyAddress', 'Property Address', 'textarea', true, 5, { placeholder: 'Full address of the property to be assessed' }),
+      f('mainConcern', 'Main Concern', 'textarea', false, 6, {
+        placeholder: 'e.g. financial losses, health issues, relationship conflicts',
+        tooltip: 'Describe the issues you have been experiencing in this space.',
+        validation: { maxLength: 300 },
+      }),
+    ],
+    fileUploads: [floorPlanUpload(0)],
+    addOns: [],
   },
   {
     title: 'Annual Horoscope Report',
@@ -83,6 +216,9 @@ const SEED_DATA: Partial<IService>[] = [
     hasSaleBanner: true,
     discountPercentage: 20,
     isActiveService: true,
+    formInputs: kundaliFields(),
+    fileUploads: [kundaliDocUpload(0)],
+    addOns: [],
   },
   // ── Home — Advanced ───────────────────────────────────────────────────────────
   {
@@ -97,6 +233,12 @@ const SEED_DATA: Partial<IService>[] = [
     hasSaleBanner: false,
     discountPercentage: 0,
     isActiveService: true,
+    formInputs: [
+      ...kundaliFields(),
+      questionField(7),
+    ],
+    fileUploads: [kundaliDocUpload(0)],
+    addOns: [],
   },
   {
     title: 'Relationship Compatibility Deep Dive',
@@ -110,6 +252,12 @@ const SEED_DATA: Partial<IService>[] = [
     hasSaleBanner: false,
     discountPercentage: 0,
     isActiveService: true,
+    formInputs: [
+      ...kundaliFields(),
+      ...partnerKundaliFields(7),
+    ],
+    fileUploads: [],
+    addOns: [],
   },
   {
     title: 'Business Astrology Consultation',
@@ -124,6 +272,23 @@ const SEED_DATA: Partial<IService>[] = [
     hasSaleBanner: true,
     discountPercentage: 15,
     isActiveService: true,
+    formInputs: [
+      ...kundaliFields(),
+      f('businessName', 'Business Name', 'text', false, 7, { placeholder: 'Your business or brand name' }),
+      f('businessType', 'Business Type / Industry', 'text', false, 8, { placeholder: 'e.g. E-commerce, Real Estate, Healthcare' }),
+      questionField(9),
+    ],
+    fileUploads: [],
+    addOns: [
+      {
+        key: 'coFounderChart',
+        label: "Add Co-founder's Chart Analysis",
+        description: "Include your co-founder's birth chart for partnership compatibility assessment.",
+        price: 1499,
+        formInputs: partnerKundaliFields(),
+        fileUploads: [],
+      },
+    ],
   },
   {
     title: 'Spiritual Path & Past Life Reading',
@@ -137,6 +302,12 @@ const SEED_DATA: Partial<IService>[] = [
     hasSaleBanner: false,
     discountPercentage: 0,
     isActiveService: true,
+    formInputs: [
+      ...kundaliFields(),
+      questionField(7),
+    ],
+    fileUploads: [],
+    addOns: [],
   },
   {
     title: 'Annual Personalised Forecast Package',
@@ -150,6 +321,14 @@ const SEED_DATA: Partial<IService>[] = [
     hasSaleBanner: false,
     discountPercentage: 0,
     isActiveService: true,
+    formInputs: kundaliFields(),
+    fileUploads: [kundaliDocUpload(0)],
+    addOns: [],
+    repeatableGroup: {
+      enabled: true,
+      label: 'Add Another Family Member',
+      maxRepeats: 5,
+    },
   },
   // ── Energy — Basic ────────────────────────────────────────────────────────────
   {
@@ -164,6 +343,16 @@ const SEED_DATA: Partial<IService>[] = [
     hasSaleBanner: false,
     discountPercentage: 0,
     isActiveService: true,
+    formInputs: [
+      ...basicPersonal(),
+      f('currentConcern', 'Current Energy Concern', 'textarea', false, 4, {
+        placeholder: 'e.g. fatigue, anxiety, emotional heaviness',
+        tooltip: 'Describe what you have been experiencing so we can focus the scan effectively.',
+        validation: { maxLength: 300 },
+      }),
+    ],
+    fileUploads: [],
+    addOns: [],
   },
   {
     title: 'Chakra Balancing Session',
@@ -177,6 +366,19 @@ const SEED_DATA: Partial<IService>[] = [
     hasSaleBanner: false,
     discountPercentage: 0,
     isActiveService: true,
+    formInputs: [
+      ...basicPersonal(),
+      f('primarySymptoms', 'Primary Symptoms / Concerns', 'multiSelect', false, 4, {
+        options: ['Fatigue', 'Anxiety', 'Digestive issues', 'Lack of confidence', 'Difficulty communicating', 'Emotional numbness', 'Spiritual disconnection'],
+        tooltip: 'Select all that apply. This helps us focus on the most affected chakras.',
+      }),
+      f('additionalNotes', 'Additional Notes', 'textarea', false, 5, {
+        placeholder: 'Anything else you would like us to know before the session',
+        validation: { maxLength: 300 },
+      }),
+    ],
+    fileUploads: [],
+    addOns: [],
   },
   {
     title: 'Energy Cleansing Ritual',
@@ -191,6 +393,19 @@ const SEED_DATA: Partial<IService>[] = [
     hasSaleBanner: true,
     discountPercentage: 10,
     isActiveService: true,
+    formInputs: [
+      ...basicPersonal(),
+      f('cleansingTarget', 'What needs cleansing?', 'radio', true, 4, {
+        options: ['Personal energy field', 'Home or living space', 'Office or workspace', 'Both self and space'],
+      }),
+      f('recentEvents', 'Recent Triggering Events', 'textarea', false, 5, {
+        placeholder: 'e.g. moved to a new house, ended a relationship, loss of a loved one',
+        tooltip: 'Helps us understand the source of the energy imbalance.',
+        validation: { maxLength: 300 },
+      }),
+    ],
+    fileUploads: [],
+    addOns: [],
   },
   {
     title: 'Crystal Healing Consultation',
@@ -204,6 +419,18 @@ const SEED_DATA: Partial<IService>[] = [
     hasSaleBanner: false,
     discountPercentage: 0,
     isActiveService: true,
+    formInputs: [
+      ...basicPersonal(),
+      f('healingIntention', 'Primary Healing Intention', 'dropdown', true, 4, {
+        options: ['Protection', 'Healing', 'Manifestation', 'Love & relationships', 'Clarity & focus', 'Spiritual growth', 'Grounding'],
+      }),
+      f('currentChallenges', 'Current Challenges', 'textarea', false, 5, {
+        placeholder: 'Describe what you are currently going through',
+        validation: { maxLength: 300 },
+      }),
+    ],
+    fileUploads: [],
+    addOns: [],
   },
   // ── Energy — Advanced ─────────────────────────────────────────────────────────
   {
@@ -218,6 +445,20 @@ const SEED_DATA: Partial<IService>[] = [
     hasSaleBanner: false,
     discountPercentage: 0,
     isActiveService: true,
+    formInputs: [
+      ...basicPersonal(),
+      f('primaryGoal', 'Primary Goal for this Programme', 'textarea', true, 4, {
+        placeholder: 'What do you hope to achieve through this programme?',
+        validation: { maxLength: 400 },
+      }),
+      f('medicalHistory', 'Relevant Health Background', 'textarea', false, 5, {
+        placeholder: 'Any chronic conditions or recent health events we should be aware of',
+        tooltip: 'This is kept strictly confidential and helps us tailor the sessions safely.',
+        validation: { maxLength: 400 },
+      }),
+    ],
+    fileUploads: [],
+    addOns: [],
   },
   {
     title: 'Past Life Energy Regression',
@@ -231,6 +472,17 @@ const SEED_DATA: Partial<IService>[] = [
     hasSaleBanner: false,
     discountPercentage: 0,
     isActiveService: true,
+    formInputs: [
+      ...basicPersonal(),
+      f('recurringPatterns', 'Recurring Patterns or Fears', 'textarea', false, 4, {
+        placeholder: 'e.g. fear of abandonment, repeated relationship failures, unexplained phobias',
+        tooltip: 'These often point to past-life imprints that the regression will target.',
+        validation: { maxLength: 400 },
+      }),
+      questionField(5),
+    ],
+    fileUploads: [],
+    addOns: [],
   },
   {
     title: 'Energy & Astrology Combined Reading',
@@ -245,6 +497,15 @@ const SEED_DATA: Partial<IService>[] = [
     hasSaleBanner: true,
     discountPercentage: 15,
     isActiveService: true,
+    formInputs: [
+      ...kundaliFields(),
+      f('energyConcern', 'Main Energy Concern', 'textarea', false, 7, {
+        placeholder: 'Describe the energy or emotional challenges you have been experiencing',
+        validation: { maxLength: 300 },
+      }),
+    ],
+    fileUploads: [],
+    addOns: [],
   },
   {
     title: 'Advanced Pranic Healing Package',
@@ -258,6 +519,19 @@ const SEED_DATA: Partial<IService>[] = [
     hasSaleBanner: false,
     discountPercentage: 0,
     isActiveService: true,
+    formInputs: [
+      ...basicPersonal(),
+      f('chronicCondition', 'Chronic Condition or Issue', 'textarea', true, 4, {
+        placeholder: 'Describe the ongoing physical, emotional, or energetic issue you want addressed',
+        validation: { maxLength: 400 },
+      }),
+      f('previousHealing', 'Previous Healing Treatments', 'textarea', false, 5, {
+        placeholder: 'List any past healing modalities you have tried',
+        validation: { maxLength: 300 },
+      }),
+    ],
+    fileUploads: [],
+    addOns: [],
   },
   // ── Astrology — Numerology ────────────────────────────────────────────────────
   {
@@ -272,6 +546,16 @@ const SEED_DATA: Partial<IService>[] = [
     hasSaleBanner: false,
     discountPercentage: 0,
     isActiveService: true,
+    formInputs: [
+      ...basicPersonal(),
+      f('fullName', 'Full Name (as on birth certificate)', 'text', true, 4, {
+        placeholder: 'Enter your full legal name',
+        tooltip: 'Used to calculate your Destiny and Soul Urge numbers. Include middle name if any.',
+      }),
+      f('dateOfBirth', 'Date of Birth', 'date', true, 5, { validation: { maxDate: 'today' } }),
+    ],
+    fileUploads: [],
+    addOns: [],
   },
   {
     title: 'Name Correction Consultation',
@@ -286,6 +570,22 @@ const SEED_DATA: Partial<IService>[] = [
     hasSaleBanner: true,
     discountPercentage: 10,
     isActiveService: true,
+    formInputs: [
+      ...basicPersonal(),
+      f('currentFullName', 'Current Full Name', 'text', true, 4, {
+        placeholder: 'Name you currently use (including any nickname or professional name)',
+      }),
+      f('birthFullName', 'Full Name on Birth Certificate', 'text', true, 5, {
+        placeholder: 'Legal name as on birth certificate',
+        tooltip: 'This is used as the numerological baseline for correction analysis.',
+      }),
+      f('dateOfBirth', 'Date of Birth', 'date', true, 6, { validation: { maxDate: 'today' } }),
+      f('purpose', 'Purpose of Name Correction', 'dropdown', false, 7, {
+        options: ['Career & business success', 'Better relationships', 'Health improvement', 'Spiritual alignment', 'General prosperity'],
+      }),
+    ],
+    fileUploads: [],
+    addOns: [],
   },
   // ── Astrology — Consultation ──────────────────────────────────────────────────
   {
@@ -300,6 +600,15 @@ const SEED_DATA: Partial<IService>[] = [
     hasSaleBanner: false,
     discountPercentage: 0,
     isActiveService: true,
+    formInputs: [
+      ...kundaliFields(),
+      f('topicOfConcern', 'Topic / Area of Concern', 'dropdown', true, 7, {
+        options: ['Career & Finance', 'Relationships & Marriage', 'Health', 'Spirituality', 'Family', 'Education', 'General Life Guidance'],
+      }),
+      questionField(8),
+    ],
+    fileUploads: [],
+    addOns: [],
   },
   {
     title: 'Remedial Measures Consultation',
@@ -313,6 +622,16 @@ const SEED_DATA: Partial<IService>[] = [
     hasSaleBanner: false,
     discountPercentage: 0,
     isActiveService: true,
+    formInputs: [
+      ...kundaliFields(),
+      f('currentProblems', 'Current Problems or Challenges', 'textarea', true, 7, {
+        placeholder: 'Describe the life areas where you are facing difficulties',
+        tooltip: 'This helps us focus the remedial prescription on what matters most to you.',
+        validation: { maxLength: 400 },
+      }),
+    ],
+    fileUploads: [],
+    addOns: [],
   },
   // ── Astrology — Reports Basic ─────────────────────────────────────────────────
   {
@@ -327,6 +646,9 @@ const SEED_DATA: Partial<IService>[] = [
     hasSaleBanner: false,
     discountPercentage: 0,
     isActiveService: true,
+    formInputs: kundaliFields(),
+    fileUploads: [],
+    addOns: [],
   },
   {
     title: 'Annual Transit Forecast Report',
@@ -341,6 +663,9 @@ const SEED_DATA: Partial<IService>[] = [
     hasSaleBanner: true,
     discountPercentage: 15,
     isActiveService: true,
+    formInputs: kundaliFields(),
+    fileUploads: [],
+    addOns: [],
   },
   // ── Astrology — Reports Advanced ──────────────────────────────────────────────
   {
@@ -355,6 +680,15 @@ const SEED_DATA: Partial<IService>[] = [
     hasSaleBanner: false,
     discountPercentage: 0,
     isActiveService: true,
+    formInputs: [
+      ...kundaliFields(),
+      f('focusAreas', 'Focus Areas', 'multiSelect', false, 7, {
+        options: ['Career', 'Finance', 'Relationships', 'Health', 'Spirituality', 'Family'],
+        tooltip: 'Select the life areas you want the report to prioritise.',
+      }),
+    ],
+    fileUploads: [],
+    addOns: [],
   },
   {
     title: '5-Year Predictive Report',
@@ -368,6 +702,9 @@ const SEED_DATA: Partial<IService>[] = [
     hasSaleBanner: false,
     discountPercentage: 0,
     isActiveService: true,
+    formInputs: kundaliFields(),
+    fileUploads: [],
+    addOns: [],
   },
   // ── Material — Programmes ─────────────────────────────────────────────────────
   {
@@ -382,6 +719,19 @@ const SEED_DATA: Partial<IService>[] = [
     hasSaleBanner: false,
     discountPercentage: 0,
     isActiveService: true,
+    formInputs: [
+      ...kundaliFields(),
+      f('currentIncomeSources', 'Current Income Sources', 'textarea', false, 7, {
+        placeholder: 'e.g. salaried job, freelancing, business',
+        validation: { maxLength: 300 },
+      }),
+      f('wealthGoal', 'Wealth Goal', 'textarea', true, 8, {
+        placeholder: 'What does financial freedom look like for you?',
+        validation: { maxLength: 400 },
+      }),
+    ],
+    fileUploads: [],
+    addOns: [],
   },
   {
     title: 'Business Consulting',
@@ -395,6 +745,20 @@ const SEED_DATA: Partial<IService>[] = [
     hasSaleBanner: false,
     discountPercentage: 0,
     isActiveService: true,
+    formInputs: [
+      ...kundaliFields(),
+      f('businessName', 'Business / Brand Name', 'text', false, 7),
+      f('businessStage', 'Business Stage', 'dropdown', true, 8, {
+        options: ['Idea / Pre-revenue', 'Early stage (< 1 year)', 'Growing (1–3 years)', 'Established (3+ years)', 'Scaling / Expansion'],
+      }),
+      f('industry', 'Industry / Sector', 'text', true, 9, { placeholder: 'e.g. Real Estate, E-commerce, Healthcare' }),
+      f('primaryChallenge', 'Primary Business Challenge', 'textarea', true, 10, {
+        placeholder: 'Describe the main problem or goal you want addressed',
+        validation: { maxLength: 500 },
+      }),
+    ],
+    fileUploads: [],
+    addOns: [],
   },
   {
     title: 'Abundance Programme',
@@ -408,6 +772,20 @@ const SEED_DATA: Partial<IService>[] = [
     hasSaleBanner: false,
     discountPercentage: 0,
     isActiveService: true,
+    formInputs: [
+      ...basicPersonal(),
+      f('currentMoneyStory', 'Your Current Relationship with Money', 'textarea', true, 4, {
+        placeholder: 'Describe how money has shown up in your life — patterns, beliefs, struggles',
+        tooltip: 'Be as honest and detailed as you can. This is kept strictly confidential.',
+        validation: { maxLength: 500 },
+      }),
+      f('abundanceGoal', 'What does abundance mean to you?', 'textarea', true, 5, {
+        placeholder: 'Describe your ideal financial reality in vivid detail',
+        validation: { maxLength: 500 },
+      }),
+    ],
+    fileUploads: [],
+    addOns: [],
   },
   // ── Manifestation — Basic ─────────────────────────────────────────────────────
   {
@@ -422,6 +800,19 @@ const SEED_DATA: Partial<IService>[] = [
     hasSaleBanner: false,
     discountPercentage: 0,
     isActiveService: true,
+    formInputs: [
+      ...basicPersonal(),
+      f('manifestationGoal', 'What do you want to manifest?', 'textarea', true, 4, {
+        placeholder: 'Describe your desire in as much detail as possible',
+        validation: { maxLength: 500 },
+      }),
+      f('currentBlock', 'What is holding you back?', 'textarea', false, 5, {
+        placeholder: 'e.g. fear, self-doubt, past failures, limiting beliefs',
+        validation: { maxLength: 400 },
+      }),
+    ],
+    fileUploads: [],
+    addOns: [],
   },
   {
     title: 'Vision Board Workshop',
@@ -435,6 +826,18 @@ const SEED_DATA: Partial<IService>[] = [
     hasSaleBanner: false,
     discountPercentage: 0,
     isActiveService: true,
+    formInputs: [
+      ...basicPersonal(),
+      f('lifeAreas', 'Life Areas to Include', 'multiSelect', true, 4, {
+        options: ['Career & wealth', 'Relationships & love', 'Health & wellness', 'Travel & experiences', 'Spiritual growth', 'Family'],
+        tooltip: 'Select the areas you want your vision board to focus on.',
+      }),
+      f('currentVision', 'Describe your ideal life in 1–2 years', 'textarea', false, 5, {
+        validation: { maxLength: 400 },
+      }),
+    ],
+    fileUploads: [],
+    addOns: [],
   },
   {
     title: 'Daily Manifestation Ritual Kit',
@@ -449,6 +852,15 @@ const SEED_DATA: Partial<IService>[] = [
     hasSaleBanner: true,
     discountPercentage: 15,
     isActiveService: true,
+    formInputs: [
+      ...basicPersonal(),
+      f('primaryGoal', 'Primary Manifestation Goal', 'text', true, 4, { placeholder: 'e.g. land a new job, attract a partner, build wealth' }),
+      f('dailyTimeAvailable', 'Time available for daily practice', 'dropdown', true, 5, {
+        options: ['5–10 minutes', '15–20 minutes', '30 minutes', '1 hour'],
+      }),
+    ],
+    fileUploads: [],
+    addOns: [],
   },
   // ── Manifestation — Advanced ──────────────────────────────────────────────────
   {
@@ -463,6 +875,19 @@ const SEED_DATA: Partial<IService>[] = [
     hasSaleBanner: false,
     discountPercentage: 0,
     isActiveService: true,
+    formInputs: [
+      ...basicPersonal(),
+      f('coreDesire', 'Core Desire for this Programme', 'textarea', true, 4, {
+        placeholder: 'What is the one thing you most want to manifest in the next 21 days?',
+        validation: { maxLength: 400 },
+      }),
+      f('limitingBelief', 'Biggest Limiting Belief', 'textarea', false, 5, {
+        placeholder: 'The thought that makes you doubt you can have what you want',
+        validation: { maxLength: 300 },
+      }),
+    ],
+    fileUploads: [],
+    addOns: [],
   },
   {
     title: 'Manifestation & Astrology Alignment',
@@ -476,6 +901,15 @@ const SEED_DATA: Partial<IService>[] = [
     hasSaleBanner: false,
     discountPercentage: 0,
     isActiveService: true,
+    formInputs: [
+      ...kundaliFields(),
+      f('manifestationGoal', 'What do you want to manifest?', 'textarea', true, 7, {
+        placeholder: 'Be as specific as possible about your desired outcome',
+        validation: { maxLength: 500 },
+      }),
+    ],
+    fileUploads: [],
+    addOns: [],
   },
   {
     title: 'Abundance Identity Shift',
@@ -489,6 +923,19 @@ const SEED_DATA: Partial<IService>[] = [
     hasSaleBanner: false,
     discountPercentage: 0,
     isActiveService: true,
+    formInputs: [
+      ...basicPersonal(),
+      f('scarcityPattern', 'Describe your scarcity or lack pattern', 'textarea', true, 4, {
+        placeholder: 'How does scarcity show up in your thoughts, emotions, and life?',
+        validation: { maxLength: 500 },
+      }),
+      f('desiredIdentity', 'Who do you want to become?', 'textarea', true, 5, {
+        placeholder: 'Describe the abundant, successful version of yourself',
+        validation: { maxLength: 400 },
+      }),
+    ],
+    fileUploads: [],
+    addOns: [],
   },
   // ── Manifestation — Practice ──────────────────────────────────────────────────
   {
@@ -503,6 +950,15 @@ const SEED_DATA: Partial<IService>[] = [
     hasSaleBanner: false,
     discountPercentage: 0,
     isActiveService: true,
+    formInputs: [
+      ...basicPersonal(),
+      f('scriptingGoal', 'What will you script for?', 'text', true, 4, { placeholder: 'e.g. dream job, ideal partner, financial abundance' }),
+      f('experienceLevel', 'Experience with Manifestation', 'radio', true, 5, {
+        options: ['Complete beginner', 'Tried a few techniques', 'Regular practitioner'],
+      }),
+    ],
+    fileUploads: [],
+    addOns: [],
   },
   {
     title: '369 Method Guided Practice',
@@ -516,6 +972,14 @@ const SEED_DATA: Partial<IService>[] = [
     hasSaleBanner: false,
     discountPercentage: 0,
     isActiveService: true,
+    formInputs: [
+      ...basicPersonal(),
+      f('affirmationFocus', 'What is your 369 affirmation focused on?', 'text', true, 4, {
+        placeholder: 'e.g. I am financially free, I am in a loving relationship',
+      }),
+    ],
+    fileUploads: [],
+    addOns: [],
   },
   {
     title: 'Gratitude & Frequency Elevation',
@@ -529,6 +993,15 @@ const SEED_DATA: Partial<IService>[] = [
     hasSaleBanner: false,
     discountPercentage: 0,
     isActiveService: true,
+    formInputs: [
+      ...basicPersonal(),
+      f('currentEmotionalState', 'Describe your current emotional baseline', 'dropdown', true, 4, {
+        options: ['Mostly low / heavy', 'Neutral / flat', 'Occasionally high', 'Generally positive'],
+        tooltip: 'This helps us calibrate the starting point of your frequency elevation programme.',
+      }),
+    ],
+    fileUploads: [],
+    addOns: [],
   },
   // ── Tarot — Basic ─────────────────────────────────────────────────────────────
   {
@@ -543,6 +1016,12 @@ const SEED_DATA: Partial<IService>[] = [
     hasSaleBanner: false,
     discountPercentage: 0,
     isActiveService: true,
+    formInputs: [
+      ...basicPersonal(),
+      questionField(4),
+    ],
+    fileUploads: [],
+    addOns: [],
   },
   {
     title: 'Three Card Reading',
@@ -556,6 +1035,13 @@ const SEED_DATA: Partial<IService>[] = [
     hasSaleBanner: false,
     discountPercentage: 0,
     isActiveService: true,
+    formInputs: [
+      ...basicPersonal(),
+      f('situation', 'Situation or Topic', 'text', true, 4, { placeholder: 'Briefly describe the situation' }),
+      questionField(5),
+    ],
+    fileUploads: [],
+    addOns: [],
   },
   {
     title: 'Celtic Cross Reading',
@@ -569,6 +1055,15 @@ const SEED_DATA: Partial<IService>[] = [
     hasSaleBanner: false,
     discountPercentage: 0,
     isActiveService: true,
+    formInputs: [
+      ...basicPersonal(),
+      f('lifeArea', 'Life Area', 'dropdown', true, 4, {
+        options: ['Career & finances', 'Love & relationships', 'Health', 'Family', 'Spirituality', 'General'],
+      }),
+      questionField(5),
+    ],
+    fileUploads: [],
+    addOns: [],
   },
   {
     title: 'Love & Relationship Tarot',
@@ -583,6 +1078,16 @@ const SEED_DATA: Partial<IService>[] = [
     hasSaleBanner: true,
     discountPercentage: 10,
     isActiveService: true,
+    formInputs: [
+      ...basicPersonal(),
+      f('relationshipStatus', 'Relationship Status', 'radio', true, 4, {
+        options: ['In a relationship', 'Single / seeking', 'Complicated / unclear', 'Past relationship'],
+      }),
+      f('partnerFirstName', "Partner's First Name", 'text', false, 5, { placeholder: 'Leave blank if not applicable' }),
+      questionField(6),
+    ],
+    fileUploads: [],
+    addOns: [],
   },
   // ── Tarot — Advanced ──────────────────────────────────────────────────────────
   {
@@ -597,6 +1102,14 @@ const SEED_DATA: Partial<IService>[] = [
     hasSaleBanner: false,
     discountPercentage: 0,
     isActiveService: true,
+    formInputs: [
+      ...basicPersonal(),
+      f('focusTheme', 'Overall Theme or Focus for the Year', 'dropdown', false, 4, {
+        options: ['Career & growth', 'Relationships', 'Spiritual development', 'Financial abundance', 'Health & healing', 'General life guidance'],
+      }),
+    ],
+    fileUploads: [],
+    addOns: [],
   },
   {
     title: 'Soul Purpose Reading',
@@ -610,6 +1123,16 @@ const SEED_DATA: Partial<IService>[] = [
     hasSaleBanner: false,
     discountPercentage: 0,
     isActiveService: true,
+    formInputs: [
+      ...basicPersonal(),
+      f('dateOfBirth', 'Date of Birth', 'date', true, 4, { validation: { maxDate: 'today' } }),
+      f('soulQuestion', 'What is your deepest soul question?', 'textarea', false, 5, {
+        placeholder: 'e.g. What is my purpose? Why do I keep repeating this pattern?',
+        validation: { maxLength: 400 },
+      }),
+    ],
+    fileUploads: [],
+    addOns: [],
   },
   {
     title: 'Tarot + Astrology Combo',
@@ -623,6 +1146,12 @@ const SEED_DATA: Partial<IService>[] = [
     hasSaleBanner: false,
     discountPercentage: 0,
     isActiveService: true,
+    formInputs: [
+      ...kundaliFields(),
+      questionField(7),
+    ],
+    fileUploads: [],
+    addOns: [],
   },
   // ── Vastu — Basic ─────────────────────────────────────────────────────────────
   {
@@ -637,6 +1166,20 @@ const SEED_DATA: Partial<IService>[] = [
     hasSaleBanner: false,
     discountPercentage: 0,
     isActiveService: true,
+    formInputs: [
+      ...basicPersonal(),
+      f('propertyAddress', 'Property Address', 'textarea', true, 4, { placeholder: 'Full address of the home' }),
+      f('houseFacing', 'Main Door Facing Direction', 'dropdown', false, 5, {
+        options: ['North', 'North-East', 'East', 'South-East', 'South', 'South-West', 'West', 'North-West', 'Not sure'],
+        tooltip: 'Stand at your main entrance facing outward — the direction you face is the door facing direction.',
+      }),
+      f('mainConcern', 'Primary Concern', 'textarea', false, 6, {
+        placeholder: 'e.g. health issues, financial stress, family conflicts',
+        validation: { maxLength: 300 },
+      }),
+    ],
+    fileUploads: [floorPlanUpload(0)],
+    addOns: [],
   },
   {
     title: 'Office Vastu Consultation',
@@ -651,6 +1194,23 @@ const SEED_DATA: Partial<IService>[] = [
     hasSaleBanner: true,
     discountPercentage: 10,
     isActiveService: true,
+    formInputs: [
+      ...basicPersonal(),
+      f('officeAddress', 'Office Address', 'textarea', true, 4, { placeholder: 'Full address of the office' }),
+      f('officeSize', 'Approximate Office Size', 'dropdown', false, 5, {
+        options: ['Small (< 500 sq ft)', 'Medium (500–2000 sq ft)', 'Large (2000–5000 sq ft)', 'Very large (5000+ sq ft)'],
+      }),
+      f('teamSize', 'Number of Employees', 'number', false, 6, {
+        placeholder: 'Approximate headcount',
+        validation: { min: 1, max: 10000 },
+      }),
+      f('businessChallenge', 'Business Challenge', 'textarea', false, 7, {
+        placeholder: 'e.g. low sales, high attrition, conflict among partners',
+        validation: { maxLength: 300 },
+      }),
+    ],
+    fileUploads: [floorPlanUpload(0)],
+    addOns: [],
   },
   {
     title: 'Vastu for New Property',
@@ -664,6 +1224,29 @@ const SEED_DATA: Partial<IService>[] = [
     hasSaleBanner: false,
     discountPercentage: 0,
     isActiveService: true,
+    formInputs: [
+      ...basicPersonal(),
+      f('propertyAddress', 'Property Address', 'textarea', true, 4, { placeholder: 'Address or location of the property under consideration' }),
+      f('propertyType', 'Property Type', 'dropdown', true, 5, {
+        options: ['Residential flat', 'Independent house / villa', 'Plot / land', 'Commercial office', 'Shop / showroom'],
+      }),
+      f('decisionTimeline', 'Decision Timeline', 'dropdown', false, 6, {
+        options: ['Within a week', '1–4 weeks', '1–3 months', 'No fixed timeline'],
+      }),
+    ],
+    fileUploads: [
+      {
+        fieldKey: 'propertyLayout',
+        label: 'Property Layout or Photos',
+        tooltip: 'Upload the floor plan, site map, or clear photos of the property.',
+        acceptedTypes: ['pdf', 'jpg', 'jpeg', 'png'],
+        maxFiles: 5,
+        maxFileSizeMB: 10,
+        isRequired: false,
+        order: 0,
+      },
+    ],
+    addOns: [],
   },
   {
     title: 'Vastu Remedies Report',
@@ -677,8 +1260,22 @@ const SEED_DATA: Partial<IService>[] = [
     hasSaleBanner: false,
     discountPercentage: 0,
     isActiveService: true,
+    formInputs: [
+      ...basicPersonal(),
+      f('spaceType', 'Type of Space', 'radio', true, 4, {
+        options: ['Home', 'Office', 'Shop', 'Other'],
+      }),
+      f('propertyAddress', 'Property Address', 'textarea', true, 5, { placeholder: 'Full address' }),
+      f('existingIssues', 'Issues you have been experiencing', 'multiSelect', false, 6, {
+        options: ['Financial losses', 'Health problems', 'Relationship conflicts', 'Career stagnation', 'Mental stress / anxiety', 'Accidents or mishaps'],
+      }),
+    ],
+    fileUploads: [floorPlanUpload(0)],
+    addOns: [],
   },
 ]
+
+// ─── CRUD operations ──────────────────────────────────────────────────────────
 
 export async function getAllServices(onlyActive = false, type?: ServiceType, page?: string): Promise<IService[]> {
   const filter: Record<string, unknown> = {}
@@ -697,11 +1294,13 @@ export async function getServiceById(id: string): Promise<IService> {
 }
 
 export async function createService(data: Partial<IService>): Promise<IService> {
-  return Service.create(data)
+  return Service.create({ ...data, sku: generateSku(data.title ?? 'SERVICE') })
 }
 
 export async function updateService(id: string, data: Partial<IService>): Promise<IService> {
-  const service = await Service.findByIdAndUpdate(id, data, { new: true, runValidators: true })
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const { sku: _sku, ...safeData } = data as IService & { sku?: string }
+  const service = await Service.findByIdAndUpdate(id, safeData, { new: true, runValidators: true })
   if (!service) throw new ApiError(HttpStatus.NOT_FOUND, HttpMessage.NOT_FOUND)
   return service
 }
@@ -713,6 +1312,7 @@ export async function deleteService(id: string): Promise<void> {
 
 export async function seedServices(): Promise<void> {
   await Service.deleteMany({})
-  await Service.insertMany(SEED_DATA)
-  console.log(`Seeded ${SEED_DATA.length} astrology services`)
+  const withSkus = SEED_DATA.map((s) => ({ ...s, sku: generateSku(s.title ?? 'SERVICE') }))
+  await Service.insertMany(withSkus)
+  console.log(`Seeded ${withSkus.length} astrology services`)
 }
