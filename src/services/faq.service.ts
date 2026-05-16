@@ -156,6 +156,47 @@ const SEED_DATA: Partial<IFaq>[] = [
     ],
   },
   {
+    page: 'manifestation',
+    faqs: [
+      {
+        question: 'What is manifestation and how does it work?',
+        answer:
+          'Manifestation is the process of bringing a desired reality into your life by aligning your thoughts, beliefs, emotions, and actions with what you want to create. It is rooted in the understanding that your internal state — your dominant thoughts and emotional frequency — shapes the experiences and opportunities you attract. When your subconscious beliefs and conscious desires are aligned, manifestation becomes natural and effortless.',
+        isActive: true,
+      },
+      {
+        question: 'How is manifestation different from positive thinking?',
+        answer:
+          'Positive thinking focuses on surface-level thoughts, while manifestation works at the level of identity and belief. Simply thinking positively while holding deep subconscious beliefs of unworthiness or scarcity produces little lasting change. True manifestation requires reprogramming the subconscious, elevating your emotional frequency, and taking inspired action — positive thinking is just one small component of a much deeper process.',
+        isActive: true,
+      },
+      {
+        question: 'How long does it take to manifest something?',
+        answer:
+          'Timing varies significantly based on the size of your desire, the depth of any resistance or limiting beliefs, and the consistency of your practice. Small, believable desires can manifest within days or weeks. Larger life changes — a new career, a relationship, financial transformation — typically unfold over months. The key variable is not time but alignment: the closer your internal state is to your desired reality, the faster it arrives.',
+        isActive: true,
+      },
+      {
+        question: 'What is the role of belief in manifestation?',
+        answer:
+          'Belief is the foundation of manifestation. Your subconscious mind acts as a filter — it only allows in experiences that match what it believes to be true about you and the world. If you desire abundance but carry a deep belief that money is scarce or that you are undeserving, those subconscious programs will override your conscious intentions. Our work focuses on identifying and dissolving these blocks so your beliefs and desires become fully aligned.',
+        isActive: true,
+      },
+      {
+        question: 'Can manifestation work alongside therapy or other healing modalities?',
+        answer:
+          'Yes, and it often works best in combination. Manifestation practices complement therapy, energy healing, meditation, and other personal development approaches. Therapy helps process past experiences, energy work clears the field, and manifestation provides a forward-focused framework for creating new realities. Our practitioners are trained to integrate these modalities where appropriate.',
+        isActive: true,
+      },
+      {
+        question: 'Which manifestation technique should I start with?',
+        answer:
+          'This depends on your learning style and goals. Scripting works well for visual, writing-oriented people. The 369 method suits those who benefit from repetition and structure. Visualisation is powerful for those who are strongly kinaesthetic or imaginative. Our Manifestation Clarity Session helps you identify which techniques are most aligned with your energy and design a practice that will feel natural and sustainable for you specifically.',
+        isActive: true,
+      },
+    ],
+  },
+  {
     page: 'tarot',
     faqs: [
       {

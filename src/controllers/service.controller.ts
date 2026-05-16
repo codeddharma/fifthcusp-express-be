@@ -9,7 +9,7 @@ import { HttpMessage, HttpStatus } from '../utils/httpStatus'
 // ─── Validation schemas ───────────────────────────────────────────────────────
 
 const ASTROLOGY_TYPES = ['numerology', 'consultation', 'reports_basic', 'reports_advanced'] as const
-const GENERIC_TYPES = ['basic', 'advanced'] as const
+const GENERIC_TYPES = ['basic', 'advanced', 'practice'] as const
 
 const serviceTypeValidation = (schema: z.ZodObject<z.ZodRawShape>) =>
   schema.superRefine((data, ctx) => {
@@ -37,7 +37,7 @@ const createServiceSchema = serviceTypeValidation(
     subtitle: z.string().min(1),
     description: z.string().min(1),
     price: z.number().min(0),
-    type: z.enum(['basic', 'advanced', 'numerology', 'consultation', 'reports_basic', 'reports_advanced']),
+    type: z.enum(['basic', 'advanced', 'practice', 'numerology', 'consultation', 'reports_basic', 'reports_advanced']),
     pages: z.array(z.string().min(1)).min(1),
     isInSale: z.boolean().optional(),
     saleTitle: z.string().optional(),
@@ -53,7 +53,7 @@ const updateServiceSchema = serviceTypeValidation(
     subtitle: z.string().min(1).optional(),
     description: z.string().min(1).optional(),
     price: z.number().min(0).optional(),
-    type: z.enum(['basic', 'advanced', 'numerology', 'consultation', 'reports_basic', 'reports_advanced']).optional(),
+    type: z.enum(['basic', 'advanced', 'practice', 'numerology', 'consultation', 'reports_basic', 'reports_advanced']).optional(),
     pages: z.array(z.string().min(1)).min(1).optional(),
     isInSale: z.boolean().optional(),
     saleTitle: z.string().optional(),
@@ -68,7 +68,7 @@ const updateServiceSchema = serviceTypeValidation(
 export const listServices = asyncHandler(async (req: Request, res: Response) => {
   const onlyActive = req.query.active === 'true'
   const rawType = req.query.type
-  const validTypes: ServiceType[] = ['basic', 'advanced', 'numerology', 'consultation', 'reports_basic', 'reports_advanced']
+  const validTypes: ServiceType[] = ['basic', 'advanced', 'practice', 'numerology', 'consultation', 'reports_basic', 'reports_advanced']
   const type = validTypes.includes(rawType as ServiceType) ? (rawType as ServiceType) : undefined
   const page = typeof req.query.page === 'string' ? req.query.page : undefined
   const services = await ServiceService.getAllServices(onlyActive, type, page)

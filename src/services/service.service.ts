@@ -1,3 +1,4 @@
+import { SortOrder } from 'mongoose'
 import { ApiError } from '../utils/ApiError'
 import { HttpMessage, HttpStatus } from '../utils/httpStatus'
 import { IService, Service, ServiceType } from '../models/Service'
@@ -408,6 +409,127 @@ const SEED_DATA: Partial<IService>[] = [
     discountPercentage: 0,
     isActiveService: true,
   },
+  // ── Manifestation — Basic ─────────────────────────────────────────────────────
+  {
+    title: 'Manifestation Clarity Session',
+    subtitle: 'Define your desires & remove resistance',
+    description:
+      'A focused one-on-one session to get crystal clear on what you want to manifest and identify the subconscious beliefs and emotional blocks that are creating resistance. Leaves you with a precise intention statement and a personalised action plan to begin your manifestation journey.',
+    price: 999,
+    type: 'basic',
+    pages: ['manifestation'],
+    isInSale: false,
+    hasSaleBanner: false,
+    discountPercentage: 0,
+    isActiveService: true,
+  },
+  {
+    title: 'Vision Board Workshop',
+    subtitle: 'Guided visualisation & intention setting',
+    description:
+      'A guided session to build a powerful, energetically aligned vision board. Combines visualisation techniques, intention-setting rituals, and symbolic imagery to help you lock in a clear mental picture of your desired reality and activate your manifestation frequency.',
+    price: 799,
+    type: 'basic',
+    pages: ['manifestation'],
+    isInSale: false,
+    hasSaleBanner: false,
+    discountPercentage: 0,
+    isActiveService: true,
+  },
+  {
+    title: 'Daily Manifestation Ritual Kit',
+    subtitle: 'Personalised affirmations & morning routine plan',
+    description:
+      'Receive a fully personalised daily ritual plan including morning affirmations, journaling prompts, visualisation scripts, and evening gratitude practices — all tailored to your specific manifestation goals and energetic needs to build a consistent, high-frequency daily routine.',
+    price: 599,
+    type: 'basic',
+    pages: ['manifestation'],
+    isInSale: true,
+    saleTitle: 'Starter Special',
+    hasSaleBanner: true,
+    discountPercentage: 15,
+    isActiveService: true,
+  },
+  // ── Manifestation — Advanced ──────────────────────────────────────────────────
+  {
+    title: '21-Day Manifestation Programme',
+    subtitle: 'Deep reprogramming over 3 weeks',
+    description:
+      'A structured 21-day immersive programme to rewire your subconscious mind and align your entire energy field with your desires. Each week targets a different layer — belief clearing, identity elevation, and energetic alignment — with daily practices, check-ins, and personalised support throughout.',
+    price: 4999,
+    type: 'advanced',
+    pages: ['manifestation'],
+    isInSale: false,
+    hasSaleBanner: false,
+    discountPercentage: 0,
+    isActiveService: true,
+  },
+  {
+    title: 'Manifestation & Astrology Alignment',
+    subtitle: 'Align your desires to your most powerful planetary windows',
+    description:
+      'A combined astrology and manifestation session that maps your birth chart to identify your strongest natural manifestation periods, planetary supports, and energetic weak points. Includes a personalised manifestation calendar with auspicious timings for setting intentions, taking action, and releasing what no longer serves you.',
+    price: 5499,
+    type: 'advanced',
+    pages: ['manifestation'],
+    isInSale: false,
+    hasSaleBanner: false,
+    discountPercentage: 0,
+    isActiveService: true,
+  },
+  {
+    title: 'Abundance Identity Shift',
+    subtitle: 'Subconscious reprogramming for wealth & success',
+    description:
+      'A deep-dive advanced programme targeting the identity-level beliefs that block abundance. Using a combination of NLP techniques, hypnotic scripting, chakra work, and energetic anchoring, this programme dismantles scarcity identity and rebuilds a self-concept rooted in worthiness, confidence, and natural prosperity.',
+    price: 6999,
+    type: 'advanced',
+    pages: ['manifestation'],
+    isInSale: false,
+    hasSaleBanner: false,
+    discountPercentage: 0,
+    isActiveService: true,
+  },
+  // ── Manifestation — Practice ──────────────────────────────────────────────────
+  {
+    title: 'Scripting Mastery Workshop',
+    subtitle: 'Learn the scripting method for manifestation',
+    description:
+      'A hands-on workshop teaching the scripting manifestation technique — writing your desired reality in the present tense as if it has already happened. Covers how to script effectively, common mistakes, how to match the emotional frequency of your words, and how to build a sustainable scripting practice into your daily routine.',
+    price: 1299,
+    type: 'practice',
+    pages: ['manifestation'],
+    isInSale: false,
+    hasSaleBanner: false,
+    discountPercentage: 0,
+    isActiveService: true,
+  },
+  {
+    title: '369 Method Guided Practice',
+    subtitle: 'Nikola Tesla method with daily prompts & support',
+    description:
+      'A guided 33-day practice using the 369 manifestation method — writing your affirmation 3 times in the morning, 6 times in the afternoon, and 9 times at night. Includes your personalised affirmation script, daily journal prompts, weekly energy check-ins, and guidance on maintaining belief and momentum throughout the process.',
+    price: 999,
+    type: 'practice',
+    pages: ['manifestation'],
+    isInSale: false,
+    hasSaleBanner: false,
+    discountPercentage: 0,
+    isActiveService: true,
+  },
+  {
+    title: 'Gratitude & Frequency Elevation',
+    subtitle: 'Daily practice to raise your vibration',
+    description:
+      'A transformative gratitude practice programme designed to shift your baseline emotional frequency. Includes a personalised gratitude protocol, frequency elevation meditations, breath-work techniques, and a structured 14-day practice guide — helping you sustain the high-vibrational state that is essential for effortless manifestation.',
+    price: 799,
+    type: 'practice',
+    pages: ['manifestation'],
+    isInSale: false,
+    hasSaleBanner: false,
+    discountPercentage: 0,
+    isActiveService: true,
+  },
   // ── Tarot — Basic ─────────────────────────────────────────────────────────────
   {
     title: 'Single Card Pull',
@@ -564,7 +686,7 @@ export async function getAllServices(onlyActive = false, type?: ServiceType, pag
   if (type) filter.type = type
   if (page) filter.pages = page.toLowerCase()
   const projection = onlyActive ? { createdAt: 0, updatedAt: 0, __v: 0 } : { __v: 0 }
-  const sort = onlyActive ? { isInSale: -1, createdAt: -1 } : { createdAt: -1 }
+  const sort: { [key: string]: SortOrder } = onlyActive ? { isInSale: -1, createdAt: -1 } : { createdAt: -1 }
   return Service.find(filter, projection).sort(sort)
 }
 
