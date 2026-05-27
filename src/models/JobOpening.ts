@@ -43,15 +43,4 @@ const JobOpeningSchema = new Schema<IJobOpening>(
   { timestamps: true },
 )
 
-JobOpeningSchema.set('toJSON', {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  transform: (_doc: any, ret: any) => {
-    delete ret._id
-    delete ret.createdAt
-    delete ret.updatedAt
-    delete ret.closedAt
-    return ret
-  },
-})
-
 export const JobOpening = model<IJobOpening>('JobOpening', JobOpeningSchema)

@@ -5,9 +5,11 @@ import { seedFaqs } from './services/faq.service'
 import { seedTestimonials } from './services/testimonial.service'
 import { seedJobOpenings } from './services/jobOpening.service'
 import { seedBlogs } from './services/blog.service'
+import { seedUsers } from './services/user.service'
 
 async function runSeeds() {
   await connectDB()
+  await seedUsers()
   await seedServices()
   await seedFaqs()
   await seedTestimonials()

@@ -58,3 +58,51 @@ export async function deleteUser(id: string, requesterId: string) {
   const user = await User.findByIdAndDelete(id)
   if (!user) throw new ApiError(404, 'User not found')
 }
+
+// ─── Seed test users (idempotent) ─────────────────────────────────────────────
+
+interface SeedUserSpec {
+  name: string
+  email: string
+  password: string
+  role: UserRole
+}
+
+const TEST_USERS: SeedUserSpec[] = [
+  { name: 'Test Admin', email: 'admin@fifthcusp.test', password: 'Admin@12345', role: 'admin' },
+  { name: 'Test Manager', email: 'manager@fifthcusp.test', password: 'Manager@12345', role: 'manager' },
+  { name: 'Test Employee', email: 'employee@fifthcusp.test', password: 'Employee@12345', role: 'employee' },
+]
+
+export async function seedUsers(): Promise<void> {
+  // Ensure the admin exists first so we can record it as createdBy on the others
+  const adminSpec = TEST_USERS.find((u) => u.role === 'admin')!
+  let admin = await User.findOne({ email: adminSpec.email })
+  if (!admin) {
+    admin = await User.create({
+      name: adminSpec.name,
+      email: adminSpec.email,
+      passwordHash: adminSpec.password,
+      role: adminSpec.role,
+    })
+    console.log(`Seeded test user: ${adminSpec.email} / ${adminSpec.password} (${adminSpec.role})`)
+  } else {
+    console.log(`Test user already exists: ${adminSpec.email} (${adminSpec.role}) — skipped`)
+  }
+
+  for (const spec of TEST_USERS.filter((u) => u.role !== 'admin')) {
+    const existing = await User.findOne({ email: spec.email })
+    if (existing) {
+      console.log(`Test user already exists: ${spec.email} (${spec.role}) — skipped`)
+      continue
+    }
+    await User.create({
+      name: spec.name,
+      email: spec.email,
+      passwordHash: spec.password,
+      role: spec.role,
+      createdBy: admin._id,
+    })
+    console.log(`Seeded test user: ${spec.email} / ${spec.password} (${spec.role})`)
+  }
+}

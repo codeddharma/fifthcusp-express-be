@@ -45,8 +45,6 @@ BlogSchema.index({ isPublished: 1, publishedAt: -1 })
 BlogSchema.set('toJSON', {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   transform: (_doc: any, ret: any) => {
-    delete ret._id
-    delete ret.updatedAt
     delete ret.createdBy
     return ret
   },

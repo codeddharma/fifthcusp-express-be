@@ -1,3 +1,6 @@
+# Order file uploads (local storage; auto-purged after completion)
+uploads/
+
 # Logs
 logs
 *.log

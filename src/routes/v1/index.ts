@@ -7,6 +7,8 @@ import faqRoutes from './faq.routes'
 import testimonialRoutes from './testimonial.routes'
 import jobOpeningRoutes from './jobOpening.routes'
 import blogRoutes from './blog.routes'
+import orderRoutes from './order.routes'
+import customerRoutes from './customer.routes'
 
 const router = Router()
 
@@ -22,5 +24,7 @@ router.use('/faqs', faqRoutes)
 router.use('/testimonials', testimonialRoutes)
 router.use('/careers', jobOpeningRoutes)
 router.use('/blogs', blogRoutes)
+router.use('/orders', orderRoutes)
+router.use('/customers', customerRoutes)
 
 export default router

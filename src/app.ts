@@ -12,6 +12,7 @@ import v1Router from './routes/v1/index'
 import { globalRateLimiter, speedLimiter } from './middleware/rateLimiter'
 import { errorHandler } from './middleware/errorHandler'
 import { ApiError } from './utils/ApiError'
+import { razorpayWebhook } from './controllers/webhook.controller'
 
 const app = express()
 
@@ -29,6 +30,10 @@ app.use(
     credentials: true,
   }),
 )
+
+// Razorpay webhook — MUST receive the raw body for HMAC verification,
+// so it is mounted before the global JSON parser.
+app.post('/api/v1/payment-webhook', express.raw({ type: '*/*', limit: '1mb' }), razorpayWebhook)
 
 // Body parsing with size limit
 app.use(express.json({ limit: '10kb' }))

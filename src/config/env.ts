@@ -18,6 +18,14 @@ const env = cleanEnv(process.env, {
   SMTP_USER: str(),
   SMTP_PASS: str(),
   SMTP_FROM: str(),
+
+  RAZORPAY_KEY_ID: str(),
+  RAZORPAY_KEY_SECRET: str(),
+  RAZORPAY_WEBHOOK_SECRET: str(),
+
+  UPLOAD_DIR: str({ default: 'uploads' }),
+  ORDER_FILES_RETENTION_DAYS: num({ default: 7 }),
+  MAX_ORDER_UPLOAD_MB: num({ default: 50 }),
 })
 
 export default env

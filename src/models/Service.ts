@@ -80,6 +80,8 @@ export interface IService extends Document {
   hasSaleBanner: boolean
   discountPercentage: number
   isActiveService: boolean
+  soldCount: number
+  lastSoldDate?: Date
   createdAt: Date
   updatedAt: Date
 }
@@ -169,8 +171,13 @@ const ServiceSchema = new Schema<IService>(
     hasSaleBanner: { type: Boolean, default: false },
     discountPercentage: { type: Number, default: 0, min: 0, max: 100 },
     isActiveService: { type: Boolean, default: true },
+    soldCount: { type: Number, default: 0, min: 0 },
+    lastSoldDate: { type: Date },
   },
   { timestamps: true },
 )
+
+ServiceSchema.index({ soldCount: -1 })
+ServiceSchema.index({ lastSoldDate: -1 })
 
 export const Service = model<IService>('Service', ServiceSchema)
