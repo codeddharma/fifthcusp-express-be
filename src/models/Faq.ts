@@ -3,7 +3,7 @@ import { Document, model, Schema } from 'mongoose'
 export interface IFaqItem {
   question: string
   answer: string
-  isActive: boolean
+  isActive?: boolean
 }
 
 export interface IFaq extends Document {
