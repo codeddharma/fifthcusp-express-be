@@ -6,6 +6,7 @@ import { authorize } from '../../middleware/authorize'
 const router = Router()
 
 router.get('/', authenticate, authorize('admin'), CustomerController.listCustomers)
+router.post('/', authenticate, authorize('admin'), CustomerController.createCustomer)
 router.get('/:id', authenticate, authorize('admin'), CustomerController.getCustomer)
 router.patch('/:id', authenticate, authorize('admin'), CustomerController.updateCustomer)
 

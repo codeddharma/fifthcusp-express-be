@@ -24,6 +24,7 @@ const createOrderBodySchema = z.object({
   quantity: z.coerce.number().int().min(1).optional(),
   formResponses: z.record(z.unknown()).default({}),
   selectedAddOns: z.array(selectedAddOnSchema).optional().default([]),
+  couponCode: z.string().optional(),
 })
 
 const verifyPaymentSchema = z.object({
@@ -54,6 +55,7 @@ export const createOrder = asyncHandler(async (req: Request, res: Response) => {
     quantity: req.body.quantity ? Number(req.body.quantity) : undefined,
     formResponses: parseJsonField<Record<string, unknown>>(req.body.formResponses, {}),
     selectedAddOns: parseJsonField<unknown[]>(req.body.selectedAddOns, []),
+    couponCode: req.body.couponCode ?? undefined,
   }
   const input = createOrderBodySchema.parse(body)
   const files = (req.files as Express.Multer.File[] | undefined) ?? []

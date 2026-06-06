@@ -9,6 +9,9 @@ import jobOpeningRoutes from './jobOpening.routes'
 import blogRoutes from './blog.routes'
 import orderRoutes from './order.routes'
 import customerRoutes from './customer.routes'
+import pageMetaRoutes from './pageMeta.routes'
+import couponRoutes from './coupon.routes'
+import paymentLinkRoutes from './paymentLink.routes'
 
 const router = Router()
 
@@ -26,5 +29,8 @@ router.use('/careers', jobOpeningRoutes)
 router.use('/blogs', blogRoutes)
 router.use('/orders', orderRoutes)
 router.use('/customers', customerRoutes)
+router.use('/page-meta', pageMetaRoutes)
+router.use('/coupons', couponRoutes)
+router.use('/payment-links', paymentLinkRoutes)
 
 export default router

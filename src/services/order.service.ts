@@ -11,6 +11,7 @@ import { Customer } from '../models/Customer'
 import { Order, IOrder, IFormResponseEntry, IOrderAddOn, IOrderPricing, OrderStatus } from '../models/Order'
 import * as CustomerService from './customer.service'
 import * as UploadService from './upload.service'
+import * as CouponService from './coupon.service'
 
 interface SelectedAddOnInput {
   key: string
@@ -24,6 +25,7 @@ export interface CreateOrderInput {
   formResponses: Record<string, unknown>
   selectedAddOns?: SelectedAddOnInput[]
   files: Express.Multer.File[]
+  couponCode?: string
 }
 
 export interface CreateOrderResult {
@@ -45,17 +47,25 @@ function buildResponseEntries(inputs: IFormInput[], answers: Record<string, unkn
   }))
 }
 
-function computePricing(service: IService, quantity: number, addOnsTotal: number): IOrderPricing {
+function computePricing(
+  service: IService,
+  quantity: number,
+  addOnsTotal: number,
+  couponCode?: string,
+  couponDiscount = 0,
+): IOrderPricing {
   const basePrice = service.price * quantity
   const subtotal = basePrice + addOnsTotal
   const discountPercentage = service.discountPercentage ?? 0
   const discountAmount = Math.round((subtotal * discountPercentage) / 100)
-  const finalAmount = subtotal - discountAmount
+  const finalAmount = Math.max(0, subtotal - discountAmount - couponDiscount)
   return {
     basePrice,
     addOnsTotal,
     discountPercentage,
     discountAmount,
+    couponCode,
+    couponDiscount,
     subtotal,
     finalAmount,
     currency: 'INR',
@@ -115,9 +125,25 @@ export async function createOrder(input: CreateOrderInput): Promise<CreateOrderR
   // Upsert customer
   const customer = await CustomerService.upsertCustomer(input.customer)
 
-  // Compute pricing
+  // Compute base pricing
   const addOnsTotal = addOnSnapshots.reduce((sum, a) => sum + a.price, 0)
-  const pricing = computePricing(service, quantity, addOnsTotal)
+  let couponValidation: Awaited<ReturnType<typeof CouponService.validateCoupon>> | undefined
+  if (input.couponCode) {
+    const preTotal = service.price * Math.max(1, input.quantity ?? 1) + addOnsTotal
+    couponValidation = await CouponService.validateCoupon({
+      code: input.couponCode,
+      serviceId: String(service._id),
+      customerId: String(customer._id),
+      amount: preTotal,
+    })
+  }
+  const pricing = computePricing(
+    service,
+    quantity,
+    addOnsTotal,
+    couponValidation ? input.couponCode : undefined,
+    couponValidation?.discountAmount ?? 0,
+  )
 
   if (pricing.finalAmount <= 0) {
     throw new ApiError(HttpStatus.BAD_REQUEST, 'Order total must be greater than zero')
@@ -173,6 +199,10 @@ export async function createOrder(input: CreateOrderInput): Promise<CreateOrderR
     paymentStatus: 'pending',
     orderStatus: 'created',
   })
+
+  if (couponValidation) {
+    await CouponService.applyCoupon(couponValidation.coupon._id as Types.ObjectId)
+  }
 
   return {
     orderNumber,

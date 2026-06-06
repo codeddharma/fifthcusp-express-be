@@ -37,6 +37,8 @@ export interface IOrderPricing {
   addOnsTotal: number
   discountPercentage: number
   discountAmount: number
+  couponCode?: string
+  couponDiscount: number
   subtotal: number
   finalAmount: number
   currency: string
@@ -128,6 +130,8 @@ const OrderPricingSchema = new Schema<IOrderPricing>(
     addOnsTotal: { type: Number, required: true, min: 0, default: 0 },
     discountPercentage: { type: Number, required: true, min: 0, max: 100, default: 0 },
     discountAmount: { type: Number, required: true, min: 0, default: 0 },
+    couponCode: { type: String },
+    couponDiscount: { type: Number, min: 0, default: 0 },
     subtotal: { type: Number, required: true, min: 0 },
     finalAmount: { type: Number, required: true, min: 0 },
     currency: { type: String, required: true, default: 'INR' },

@@ -6,6 +6,7 @@ import { seedTestimonials } from './services/testimonial.service'
 import { seedJobOpenings } from './services/jobOpening.service'
 import { seedBlogs } from './services/blog.service'
 import { seedUsers } from './services/user.service'
+import { seedPageMeta } from './services/pageMeta.service'
 
 async function runSeeds() {
   await connectDB()
@@ -15,6 +16,7 @@ async function runSeeds() {
   await seedTestimonials()
   await seedJobOpenings()
   await seedBlogs()
+  await seedPageMeta()
   console.log('All seeds completed')
   process.exit(0)
 }

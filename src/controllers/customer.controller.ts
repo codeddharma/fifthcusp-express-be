@@ -5,10 +5,21 @@ import { asyncHandler } from '../utils/asyncHandler'
 import { sendSuccess } from '../utils/ApiResponse'
 import { HttpMessage, HttpStatus } from '../utils/httpStatus'
 
+const createCustomerSchema = z.object({
+  email: z.string().email(),
+  name: z.string().min(1),
+  phone: z.string().min(7).max(20),
+  notes: z.string().optional(),
+  birthDate: z.string().optional(),
+  anniversaryDate: z.string().optional(),
+})
+
 const updateCustomerSchema = z.object({
   name: z.string().min(1).optional(),
   phone: z.string().min(7).max(20).optional(),
   notes: z.string().optional(),
+  birthDate: z.string().optional(),
+  anniversaryDate: z.string().optional(),
 })
 
 export const listCustomers = asyncHandler(async (req: Request, res: Response) => {
@@ -24,13 +35,26 @@ export const listCustomers = asyncHandler(async (req: Request, res: Response) =>
   })
 })
 
+export const createCustomer = asyncHandler(async (req: Request, res: Response) => {
+  const input = createCustomerSchema.parse(req.body)
+  const customer = await CustomerService.createCustomer(input)
+  sendSuccess(res, HttpMessage.CREATED, customer, HttpStatus.CREATED)
+})
+
 export const getCustomer = asyncHandler(async (req: Request, res: Response) => {
   const customer = await CustomerService.getCustomerById(req.params.id)
   sendSuccess(res, HttpMessage.OK, customer, HttpStatus.OK)
 })
 
 export const updateCustomer = asyncHandler(async (req: Request, res: Response) => {
-  const input = updateCustomerSchema.parse(req.body)
-  const customer = await CustomerService.updateCustomer(req.params.id, input)
+  const raw = updateCustomerSchema.parse(req.body)
+  const data: Parameters<typeof CustomerService.updateCustomer>[1] = {
+    name: raw.name,
+    phone: raw.phone,
+    notes: raw.notes,
+    birthDate: raw.birthDate ? new Date(raw.birthDate) : undefined,
+    anniversaryDate: raw.anniversaryDate ? new Date(raw.anniversaryDate) : undefined,
+  }
+  const customer = await CustomerService.updateCustomer(req.params.id, data)
   sendSuccess(res, HttpMessage.UPDATED, customer, HttpStatus.OK)
 })
