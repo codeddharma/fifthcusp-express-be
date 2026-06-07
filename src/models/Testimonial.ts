@@ -1,4 +1,4 @@
-import { Document, model, Schema } from 'mongoose'
+import { Document, model, Schema, Types } from 'mongoose'
 
 export interface ITestimonial extends Document {
   feedback: string
@@ -8,6 +8,10 @@ export interface ITestimonial extends Document {
   isRejected: boolean
   approvedAt?: Date
   rejectedAt?: Date
+  // Order-linked testimonials (created via feedback flow)
+  orderId?: Types.ObjectId
+  customerId?: Types.ObjectId
+  starRating?: number
   createdAt: Date
   updatedAt: Date
 }
@@ -21,6 +25,9 @@ const TestimonialSchema = new Schema<ITestimonial>(
     isRejected: { type: Boolean, default: false },
     approvedAt: { type: Date },
     rejectedAt: { type: Date },
+    orderId: { type: Schema.Types.ObjectId, ref: 'Order' },
+    customerId: { type: Schema.Types.ObjectId, ref: 'Customer' },
+    starRating: { type: Number, min: 1, max: 5 },
   },
   { timestamps: true },
 )

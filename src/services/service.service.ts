@@ -95,6 +95,10 @@ const SEED_DATA: Partial<IService>[] = [
     hasSaleBanner: false,
     discountPercentage: 0,
     isActiveService: true,
+    deliveryDays: 5,
+    requiresConsultation: false,
+    requiresOutputFile: false,
+    feedbackEmailEnabled: true,
     formInputs: [
       ...kundaliFields(),
       questionField(7),
@@ -128,6 +132,10 @@ const SEED_DATA: Partial<IService>[] = [
     hasSaleBanner: false,
     discountPercentage: 0,
     isActiveService: true,
+    deliveryDays: 5,
+    requiresConsultation: false,
+    requiresOutputFile: true,
+    feedbackEmailEnabled: true,
     formInputs: [
       ...kundaliFields(),
       ...partnerKundaliFields(7),
@@ -147,6 +155,10 @@ const SEED_DATA: Partial<IService>[] = [
     hasSaleBanner: false,
     discountPercentage: 0,
     isActiveService: true,
+    deliveryDays: 5,
+    requiresConsultation: false,
+    requiresOutputFile: false,
+    feedbackEmailEnabled: true,
     formInputs: [
       ...kundaliFields(),
       f('currentOccupation', 'Current Occupation', 'text', false, 7, { placeholder: 'e.g. Software Engineer, Business Owner' }),
@@ -167,6 +179,10 @@ const SEED_DATA: Partial<IService>[] = [
     hasSaleBanner: false,
     discountPercentage: 0,
     isActiveService: true,
+    deliveryDays: 3,
+    requiresConsultation: false,
+    requiresOutputFile: true,
+    feedbackEmailEnabled: true,
     formInputs: [
       ...basicPersonal(),
       f('fullName', 'Full Name (as on birth certificate)', 'text', true, 4, {
@@ -190,6 +206,10 @@ const SEED_DATA: Partial<IService>[] = [
     hasSaleBanner: false,
     discountPercentage: 0,
     isActiveService: true,
+    deliveryDays: 7,
+    requiresConsultation: true,
+    requiresOutputFile: false,
+    feedbackEmailEnabled: true,
     formInputs: [
       ...basicPersonal(),
       f('propertyType', 'Property Type', 'dropdown', true, 4, { options: ['Home', 'Office', 'Shop', 'Factory', 'Other'] }),
@@ -216,6 +236,10 @@ const SEED_DATA: Partial<IService>[] = [
     hasSaleBanner: true,
     discountPercentage: 20,
     isActiveService: true,
+    deliveryDays: 7,
+    requiresConsultation: false,
+    requiresOutputFile: true,
+    feedbackEmailEnabled: true,
     formInputs: kundaliFields(),
     fileUploads: [kundaliDocUpload(0)],
     addOns: [],
@@ -233,6 +257,10 @@ const SEED_DATA: Partial<IService>[] = [
     hasSaleBanner: false,
     discountPercentage: 0,
     isActiveService: true,
+    deliveryDays: 7,
+    requiresConsultation: true,
+    requiresOutputFile: false,
+    feedbackEmailEnabled: true,
     formInputs: [
       ...kundaliFields(),
       questionField(7),
@@ -252,6 +280,10 @@ const SEED_DATA: Partial<IService>[] = [
     hasSaleBanner: false,
     discountPercentage: 0,
     isActiveService: true,
+    deliveryDays: 7,
+    requiresConsultation: false,
+    requiresOutputFile: true,
+    feedbackEmailEnabled: true,
     formInputs: [
       ...kundaliFields(),
       ...partnerKundaliFields(7),
@@ -272,6 +304,10 @@ const SEED_DATA: Partial<IService>[] = [
     hasSaleBanner: true,
     discountPercentage: 15,
     isActiveService: true,
+    deliveryDays: 7,
+    requiresConsultation: true,
+    requiresOutputFile: false,
+    feedbackEmailEnabled: true,
     formInputs: [
       ...kundaliFields(),
       f('businessName', 'Business Name', 'text', false, 7, { placeholder: 'Your business or brand name' }),
@@ -302,6 +338,10 @@ const SEED_DATA: Partial<IService>[] = [
     hasSaleBanner: false,
     discountPercentage: 0,
     isActiveService: true,
+    deliveryDays: 7,
+    requiresConsultation: true,
+    requiresOutputFile: false,
+    feedbackEmailEnabled: true,
     formInputs: [
       ...kundaliFields(),
       questionField(7),
@@ -321,6 +361,10 @@ const SEED_DATA: Partial<IService>[] = [
     hasSaleBanner: false,
     discountPercentage: 0,
     isActiveService: true,
+    deliveryDays: 14,
+    requiresConsultation: true,
+    requiresOutputFile: false,
+    feedbackEmailEnabled: true,
     formInputs: kundaliFields(),
     fileUploads: [kundaliDocUpload(0)],
     addOns: [],
@@ -343,6 +387,10 @@ const SEED_DATA: Partial<IService>[] = [
     hasSaleBanner: false,
     discountPercentage: 0,
     isActiveService: true,
+    deliveryDays: 3,
+    requiresConsultation: false,
+    requiresOutputFile: false,
+    feedbackEmailEnabled: true,
     formInputs: [
       ...basicPersonal(),
       f('currentConcern', 'Current Energy Concern', 'textarea', false, 4, {
@@ -366,6 +414,10 @@ const SEED_DATA: Partial<IService>[] = [
     hasSaleBanner: false,
     discountPercentage: 0,
     isActiveService: true,
+    deliveryDays: 5,
+    requiresConsultation: true,
+    requiresOutputFile: false,
+    feedbackEmailEnabled: true,
     formInputs: [
       ...basicPersonal(),
       f('primarySymptoms', 'Primary Symptoms / Concerns', 'multiSelect', false, 4, {
@@ -393,6 +445,10 @@ const SEED_DATA: Partial<IService>[] = [
     hasSaleBanner: true,
     discountPercentage: 10,
     isActiveService: true,
+    deliveryDays: 5,
+    requiresConsultation: false,
+    requiresOutputFile: false,
+    feedbackEmailEnabled: true,
     formInputs: [
       ...basicPersonal(),
       f('cleansingTarget', 'What needs cleansing?', 'radio', true, 4, {
@@ -419,6 +475,10 @@ const SEED_DATA: Partial<IService>[] = [
     hasSaleBanner: false,
     discountPercentage: 0,
     isActiveService: true,
+    deliveryDays: 5,
+    requiresConsultation: true,
+    requiresOutputFile: false,
+    feedbackEmailEnabled: true,
     formInputs: [
       ...basicPersonal(),
       f('healingIntention', 'Primary Healing Intention', 'dropdown', true, 4, {
@@ -445,6 +505,10 @@ const SEED_DATA: Partial<IService>[] = [
     hasSaleBanner: false,
     discountPercentage: 0,
     isActiveService: true,
+    deliveryDays: 14,
+    requiresConsultation: true,
+    requiresOutputFile: false,
+    feedbackEmailEnabled: true,
     formInputs: [
       ...basicPersonal(),
       f('primaryGoal', 'Primary Goal for this Programme', 'textarea', true, 4, {
@@ -472,6 +536,10 @@ const SEED_DATA: Partial<IService>[] = [
     hasSaleBanner: false,
     discountPercentage: 0,
     isActiveService: true,
+    deliveryDays: 7,
+    requiresConsultation: true,
+    requiresOutputFile: false,
+    feedbackEmailEnabled: true,
     formInputs: [
       ...basicPersonal(),
       f('recurringPatterns', 'Recurring Patterns or Fears', 'textarea', false, 4, {
@@ -497,6 +565,10 @@ const SEED_DATA: Partial<IService>[] = [
     hasSaleBanner: true,
     discountPercentage: 15,
     isActiveService: true,
+    deliveryDays: 7,
+    requiresConsultation: true,
+    requiresOutputFile: false,
+    feedbackEmailEnabled: true,
     formInputs: [
       ...kundaliFields(),
       f('energyConcern', 'Main Energy Concern', 'textarea', false, 7, {
@@ -519,6 +591,10 @@ const SEED_DATA: Partial<IService>[] = [
     hasSaleBanner: false,
     discountPercentage: 0,
     isActiveService: true,
+    deliveryDays: 21,
+    requiresConsultation: true,
+    requiresOutputFile: false,
+    feedbackEmailEnabled: true,
     formInputs: [
       ...basicPersonal(),
       f('chronicCondition', 'Chronic Condition or Issue', 'textarea', true, 4, {
@@ -546,6 +622,10 @@ const SEED_DATA: Partial<IService>[] = [
     hasSaleBanner: false,
     discountPercentage: 0,
     isActiveService: true,
+    deliveryDays: 3,
+    requiresConsultation: false,
+    requiresOutputFile: true,
+    feedbackEmailEnabled: true,
     formInputs: [
       ...basicPersonal(),
       f('fullName', 'Full Name (as on birth certificate)', 'text', true, 4, {
@@ -570,6 +650,10 @@ const SEED_DATA: Partial<IService>[] = [
     hasSaleBanner: true,
     discountPercentage: 10,
     isActiveService: true,
+    deliveryDays: 5,
+    requiresConsultation: true,
+    requiresOutputFile: false,
+    feedbackEmailEnabled: true,
     formInputs: [
       ...basicPersonal(),
       f('currentFullName', 'Current Full Name', 'text', true, 4, {
@@ -600,6 +684,10 @@ const SEED_DATA: Partial<IService>[] = [
     hasSaleBanner: false,
     discountPercentage: 0,
     isActiveService: true,
+    deliveryDays: 5,
+    requiresConsultation: true,
+    requiresOutputFile: false,
+    feedbackEmailEnabled: true,
     formInputs: [
       ...kundaliFields(),
       f('topicOfConcern', 'Topic / Area of Concern', 'dropdown', true, 7, {
@@ -622,6 +710,10 @@ const SEED_DATA: Partial<IService>[] = [
     hasSaleBanner: false,
     discountPercentage: 0,
     isActiveService: true,
+    deliveryDays: 5,
+    requiresConsultation: true,
+    requiresOutputFile: false,
+    feedbackEmailEnabled: true,
     formInputs: [
       ...kundaliFields(),
       f('currentProblems', 'Current Problems or Challenges', 'textarea', true, 7, {
@@ -646,6 +738,10 @@ const SEED_DATA: Partial<IService>[] = [
     hasSaleBanner: false,
     discountPercentage: 0,
     isActiveService: true,
+    deliveryDays: 3,
+    requiresConsultation: false,
+    requiresOutputFile: true,
+    feedbackEmailEnabled: true,
     formInputs: kundaliFields(),
     fileUploads: [],
     addOns: [],
@@ -663,6 +759,10 @@ const SEED_DATA: Partial<IService>[] = [
     hasSaleBanner: true,
     discountPercentage: 15,
     isActiveService: true,
+    deliveryDays: 5,
+    requiresConsultation: false,
+    requiresOutputFile: true,
+    feedbackEmailEnabled: true,
     formInputs: kundaliFields(),
     fileUploads: [],
     addOns: [],
@@ -680,6 +780,10 @@ const SEED_DATA: Partial<IService>[] = [
     hasSaleBanner: false,
     discountPercentage: 0,
     isActiveService: true,
+    deliveryDays: 7,
+    requiresConsultation: false,
+    requiresOutputFile: true,
+    feedbackEmailEnabled: true,
     formInputs: [
       ...kundaliFields(),
       f('focusAreas', 'Focus Areas', 'multiSelect', false, 7, {
@@ -702,6 +806,10 @@ const SEED_DATA: Partial<IService>[] = [
     hasSaleBanner: false,
     discountPercentage: 0,
     isActiveService: true,
+    deliveryDays: 10,
+    requiresConsultation: false,
+    requiresOutputFile: true,
+    feedbackEmailEnabled: true,
     formInputs: kundaliFields(),
     fileUploads: [],
     addOns: [],
@@ -719,6 +827,10 @@ const SEED_DATA: Partial<IService>[] = [
     hasSaleBanner: false,
     discountPercentage: 0,
     isActiveService: true,
+    deliveryDays: 14,
+    requiresConsultation: true,
+    requiresOutputFile: false,
+    feedbackEmailEnabled: true,
     formInputs: [
       ...kundaliFields(),
       f('currentIncomeSources', 'Current Income Sources', 'textarea', false, 7, {
@@ -745,6 +857,10 @@ const SEED_DATA: Partial<IService>[] = [
     hasSaleBanner: false,
     discountPercentage: 0,
     isActiveService: true,
+    deliveryDays: 14,
+    requiresConsultation: true,
+    requiresOutputFile: false,
+    feedbackEmailEnabled: true,
     formInputs: [
       ...kundaliFields(),
       f('businessName', 'Business / Brand Name', 'text', false, 7),
@@ -772,6 +888,10 @@ const SEED_DATA: Partial<IService>[] = [
     hasSaleBanner: false,
     discountPercentage: 0,
     isActiveService: true,
+    deliveryDays: 14,
+    requiresConsultation: true,
+    requiresOutputFile: false,
+    feedbackEmailEnabled: true,
     formInputs: [
       ...basicPersonal(),
       f('currentMoneyStory', 'Your Current Relationship with Money', 'textarea', true, 4, {
@@ -800,6 +920,10 @@ const SEED_DATA: Partial<IService>[] = [
     hasSaleBanner: false,
     discountPercentage: 0,
     isActiveService: true,
+    deliveryDays: 3,
+    requiresConsultation: true,
+    requiresOutputFile: false,
+    feedbackEmailEnabled: true,
     formInputs: [
       ...basicPersonal(),
       f('manifestationGoal', 'What do you want to manifest?', 'textarea', true, 4, {
@@ -826,6 +950,10 @@ const SEED_DATA: Partial<IService>[] = [
     hasSaleBanner: false,
     discountPercentage: 0,
     isActiveService: true,
+    deliveryDays: 5,
+    requiresConsultation: true,
+    requiresOutputFile: false,
+    feedbackEmailEnabled: true,
     formInputs: [
       ...basicPersonal(),
       f('lifeAreas', 'Life Areas to Include', 'multiSelect', true, 4, {
@@ -852,6 +980,10 @@ const SEED_DATA: Partial<IService>[] = [
     hasSaleBanner: true,
     discountPercentage: 15,
     isActiveService: true,
+    deliveryDays: 3,
+    requiresConsultation: false,
+    requiresOutputFile: true,
+    feedbackEmailEnabled: true,
     formInputs: [
       ...basicPersonal(),
       f('primaryGoal', 'Primary Manifestation Goal', 'text', true, 4, { placeholder: 'e.g. land a new job, attract a partner, build wealth' }),
@@ -875,6 +1007,10 @@ const SEED_DATA: Partial<IService>[] = [
     hasSaleBanner: false,
     discountPercentage: 0,
     isActiveService: true,
+    deliveryDays: 21,
+    requiresConsultation: true,
+    requiresOutputFile: false,
+    feedbackEmailEnabled: true,
     formInputs: [
       ...basicPersonal(),
       f('coreDesire', 'Core Desire for this Programme', 'textarea', true, 4, {
@@ -901,6 +1037,10 @@ const SEED_DATA: Partial<IService>[] = [
     hasSaleBanner: false,
     discountPercentage: 0,
     isActiveService: true,
+    deliveryDays: 7,
+    requiresConsultation: true,
+    requiresOutputFile: false,
+    feedbackEmailEnabled: true,
     formInputs: [
       ...kundaliFields(),
       f('manifestationGoal', 'What do you want to manifest?', 'textarea', true, 7, {
@@ -923,6 +1063,10 @@ const SEED_DATA: Partial<IService>[] = [
     hasSaleBanner: false,
     discountPercentage: 0,
     isActiveService: true,
+    deliveryDays: 14,
+    requiresConsultation: true,
+    requiresOutputFile: false,
+    feedbackEmailEnabled: true,
     formInputs: [
       ...basicPersonal(),
       f('scarcityPattern', 'Describe your scarcity or lack pattern', 'textarea', true, 4, {
@@ -950,6 +1094,10 @@ const SEED_DATA: Partial<IService>[] = [
     hasSaleBanner: false,
     discountPercentage: 0,
     isActiveService: true,
+    deliveryDays: 3,
+    requiresConsultation: true,
+    requiresOutputFile: false,
+    feedbackEmailEnabled: true,
     formInputs: [
       ...basicPersonal(),
       f('scriptingGoal', 'What will you script for?', 'text', true, 4, { placeholder: 'e.g. dream job, ideal partner, financial abundance' }),
@@ -972,6 +1120,10 @@ const SEED_DATA: Partial<IService>[] = [
     hasSaleBanner: false,
     discountPercentage: 0,
     isActiveService: true,
+    deliveryDays: 3,
+    requiresConsultation: false,
+    requiresOutputFile: true,
+    feedbackEmailEnabled: true,
     formInputs: [
       ...basicPersonal(),
       f('affirmationFocus', 'What is your 369 affirmation focused on?', 'text', true, 4, {
@@ -993,6 +1145,10 @@ const SEED_DATA: Partial<IService>[] = [
     hasSaleBanner: false,
     discountPercentage: 0,
     isActiveService: true,
+    deliveryDays: 3,
+    requiresConsultation: false,
+    requiresOutputFile: true,
+    feedbackEmailEnabled: true,
     formInputs: [
       ...basicPersonal(),
       f('currentEmotionalState', 'Describe your current emotional baseline', 'dropdown', true, 4, {
@@ -1016,6 +1172,10 @@ const SEED_DATA: Partial<IService>[] = [
     hasSaleBanner: false,
     discountPercentage: 0,
     isActiveService: true,
+    deliveryDays: 2,
+    requiresConsultation: false,
+    requiresOutputFile: false,
+    feedbackEmailEnabled: false,
     formInputs: [
       ...basicPersonal(),
       questionField(4),
@@ -1035,6 +1195,10 @@ const SEED_DATA: Partial<IService>[] = [
     hasSaleBanner: false,
     discountPercentage: 0,
     isActiveService: true,
+    deliveryDays: 2,
+    requiresConsultation: false,
+    requiresOutputFile: false,
+    feedbackEmailEnabled: false,
     formInputs: [
       ...basicPersonal(),
       f('situation', 'Situation or Topic', 'text', true, 4, { placeholder: 'Briefly describe the situation' }),
@@ -1055,6 +1219,10 @@ const SEED_DATA: Partial<IService>[] = [
     hasSaleBanner: false,
     discountPercentage: 0,
     isActiveService: true,
+    deliveryDays: 3,
+    requiresConsultation: false,
+    requiresOutputFile: false,
+    feedbackEmailEnabled: true,
     formInputs: [
       ...basicPersonal(),
       f('lifeArea', 'Life Area', 'dropdown', true, 4, {
@@ -1078,6 +1246,10 @@ const SEED_DATA: Partial<IService>[] = [
     hasSaleBanner: true,
     discountPercentage: 10,
     isActiveService: true,
+    deliveryDays: 3,
+    requiresConsultation: false,
+    requiresOutputFile: false,
+    feedbackEmailEnabled: true,
     formInputs: [
       ...basicPersonal(),
       f('relationshipStatus', 'Relationship Status', 'radio', true, 4, {
@@ -1102,6 +1274,10 @@ const SEED_DATA: Partial<IService>[] = [
     hasSaleBanner: false,
     discountPercentage: 0,
     isActiveService: true,
+    deliveryDays: 7,
+    requiresConsultation: false,
+    requiresOutputFile: true,
+    feedbackEmailEnabled: true,
     formInputs: [
       ...basicPersonal(),
       f('focusTheme', 'Overall Theme or Focus for the Year', 'dropdown', false, 4, {
@@ -1123,6 +1299,10 @@ const SEED_DATA: Partial<IService>[] = [
     hasSaleBanner: false,
     discountPercentage: 0,
     isActiveService: true,
+    deliveryDays: 5,
+    requiresConsultation: false,
+    requiresOutputFile: false,
+    feedbackEmailEnabled: true,
     formInputs: [
       ...basicPersonal(),
       f('dateOfBirth', 'Date of Birth', 'date', true, 4, { validation: { maxDate: 'today' } }),
@@ -1146,6 +1326,10 @@ const SEED_DATA: Partial<IService>[] = [
     hasSaleBanner: false,
     discountPercentage: 0,
     isActiveService: true,
+    deliveryDays: 7,
+    requiresConsultation: true,
+    requiresOutputFile: false,
+    feedbackEmailEnabled: true,
     formInputs: [
       ...kundaliFields(),
       questionField(7),
@@ -1166,6 +1350,10 @@ const SEED_DATA: Partial<IService>[] = [
     hasSaleBanner: false,
     discountPercentage: 0,
     isActiveService: true,
+    deliveryDays: 7,
+    requiresConsultation: true,
+    requiresOutputFile: false,
+    feedbackEmailEnabled: true,
     formInputs: [
       ...basicPersonal(),
       f('propertyAddress', 'Property Address', 'textarea', true, 4, { placeholder: 'Full address of the home' }),
@@ -1194,6 +1382,10 @@ const SEED_DATA: Partial<IService>[] = [
     hasSaleBanner: true,
     discountPercentage: 10,
     isActiveService: true,
+    deliveryDays: 7,
+    requiresConsultation: true,
+    requiresOutputFile: false,
+    feedbackEmailEnabled: true,
     formInputs: [
       ...basicPersonal(),
       f('officeAddress', 'Office Address', 'textarea', true, 4, { placeholder: 'Full address of the office' }),
@@ -1224,6 +1416,10 @@ const SEED_DATA: Partial<IService>[] = [
     hasSaleBanner: false,
     discountPercentage: 0,
     isActiveService: true,
+    deliveryDays: 5,
+    requiresConsultation: false,
+    requiresOutputFile: true,
+    feedbackEmailEnabled: true,
     formInputs: [
       ...basicPersonal(),
       f('propertyAddress', 'Property Address', 'textarea', true, 4, { placeholder: 'Address or location of the property under consideration' }),
@@ -1260,6 +1456,10 @@ const SEED_DATA: Partial<IService>[] = [
     hasSaleBanner: false,
     discountPercentage: 0,
     isActiveService: true,
+    deliveryDays: 5,
+    requiresConsultation: false,
+    requiresOutputFile: true,
+    feedbackEmailEnabled: true,
     formInputs: [
       ...basicPersonal(),
       f('spaceType', 'Type of Space', 'radio', true, 4, {

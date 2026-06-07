@@ -82,6 +82,11 @@ export interface IService extends Document {
   isActiveService: boolean
   soldCount: number
   lastSoldDate?: Date
+  // Delivery & notification config
+  deliveryDays: number
+  requiresConsultation: boolean
+  requiresOutputFile: boolean
+  feedbackEmailEnabled: boolean
   createdAt: Date
   updatedAt: Date
 }
@@ -173,6 +178,10 @@ const ServiceSchema = new Schema<IService>(
     isActiveService: { type: Boolean, default: true },
     soldCount: { type: Number, default: 0, min: 0 },
     lastSoldDate: { type: Date },
+    deliveryDays: { type: Number, default: 7, min: 1 },
+    requiresConsultation: { type: Boolean, default: false },
+    requiresOutputFile: { type: Boolean, default: false },
+    feedbackEmailEnabled: { type: Boolean, default: false },
   },
   { timestamps: true },
 )

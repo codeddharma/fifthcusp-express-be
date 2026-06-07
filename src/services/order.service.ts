@@ -6,6 +6,9 @@ import { ApiError } from '../utils/ApiError'
 import { HttpMessage, HttpStatus } from '../utils/httpStatus'
 import { generateOrderNumber } from '../utils/generateOrderNumber'
 import { buildFormSchema } from '../utils/buildFormSchema'
+import { sendMail } from '../utils/mailer'
+import { orderConfirmationHtml } from '../emails/orderConfirmation'
+import { consultationScheduledHtml } from '../emails/consultationScheduled'
 import { Service, IService, IFormInput } from '../models/Service'
 import { Customer } from '../models/Customer'
 import { Order, IOrder, IFormResponseEntry, IOrderAddOn, IOrderPricing, OrderStatus } from '../models/Order'
@@ -220,7 +223,6 @@ function hmacSha256(payload: string, secret: string): string {
 
 async function applyPaymentSuccess(order: IOrder, paymentId: string, signature: string | undefined, eventType: string, raw?: unknown): Promise<void> {
   if (order.paymentStatus === 'paid') {
-    // Already applied — just record the duplicate event
     order.paymentAttempts.push({ at: new Date(), eventType: `${eventType}:duplicate`, raw })
     await order.save()
     return
@@ -230,12 +232,53 @@ async function applyPaymentSuccess(order: IOrder, paymentId: string, signature: 
   order.razorpayPaymentId = paymentId
   if (signature) order.razorpaySignature = signature
   order.paymentAttempts.push({ at: new Date(), eventType, raw })
+
+  const [customer, service] = await Promise.all([
+    Customer.findById(order.customerId),
+    Service.findById(order.serviceId),
+  ])
+
+  if (service) {
+    const deliveryDays = service.deliveryDays ?? 7
+    const deadline = new Date()
+    deadline.setDate(deadline.getDate() + deliveryDays)
+    order.deadline = deadline
+  }
+
   await order.save()
 
   await Promise.all([
     Customer.updateOne({ _id: order.customerId }, { $addToSet: { orders: order._id } }),
     Service.updateOne({ _id: order.serviceId }, { $inc: { soldCount: 1 }, $set: { lastSoldDate: new Date() } }),
   ])
+
+  // Send emails fire-and-forget — do not block the payment response
+  if (customer && service && order.deadline) {
+    const emailBase = {
+      customerName: customer.name,
+      orderNumber: order.orderNumber,
+      serviceName: service.title,
+    }
+
+    sendMail({
+      to: customer.email,
+      subject: `Order Confirmed — ${order.orderNumber}`,
+      html: orderConfirmationHtml({
+        ...emailBase,
+        amount: order.pricing.finalAmount,
+        currency: order.pricing.currency,
+        deadline: order.deadline,
+      }),
+    }).catch((err) => console.error('[mailer] orderConfirmation failed:', err))
+
+    if (service.requiresConsultation) {
+      sendMail({
+        to: customer.email,
+        subject: `Your Consultation is Being Scheduled — ${order.orderNumber}`,
+        html: consultationScheduledHtml(emailBase),
+      }).catch((err) => console.error('[mailer] consultationScheduled failed:', err))
+    }
+  }
 }
 
 export async function verifyPayment(
@@ -349,7 +392,7 @@ export async function getOrderStatusByNumber(orderNumber: string): Promise<{ ord
   return { orderNumber: order.orderNumber, paymentStatus: order.paymentStatus, orderStatus: order.orderStatus }
 }
 
-const ORDER_STATUS_VALUES: OrderStatus[] = ['created', 'in_progress', 'on_hold', 'completed', 'cancelled']
+const ORDER_STATUS_VALUES: OrderStatus[] = ['created', 'in_progress', 'on_hold', 'completed', 'awaiting_feedback', 'closed', 'cancelled']
 
 export async function updateOrderStatus(id: string, nextStatus: OrderStatus, adminId: Types.ObjectId, note?: string): Promise<IOrder> {
   if (!ORDER_STATUS_VALUES.includes(nextStatus)) {

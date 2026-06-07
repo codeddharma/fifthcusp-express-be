@@ -2,7 +2,7 @@ import { Document, model, Schema, Types } from 'mongoose'
 import { FieldType } from './Service'
 
 export type PaymentStatus = 'pending' | 'paid' | 'failed' | 'refunded'
-export type OrderStatus = 'created' | 'in_progress' | 'on_hold' | 'completed' | 'cancelled'
+export type OrderStatus = 'created' | 'in_progress' | 'on_hold' | 'completed' | 'awaiting_feedback' | 'closed' | 'cancelled'
 export type FileCompression = 'none' | 'sharp-jpeg' | 'sharp-webp' | 'gzip'
 
 export interface IFormResponseEntry {
@@ -30,6 +30,13 @@ export interface IOrderFile {
   compression: FileCompression
   path: string
   uploadedAt: Date
+}
+
+export interface IOutputFile {
+  originalName: string
+  storedPath: string
+  uploadedAt: Date
+  uploadedBy: Types.ObjectId
 }
 
 export interface IOrderPricing {
@@ -84,6 +91,11 @@ export interface IOrder extends Document {
   paymentAttempts: IPaymentAttempt[]
   statusHistory: IStatusHistoryEntry[]
   filesPurgedAt?: Date
+  // Delivery & feedback tracking
+  deadline?: Date
+  outputFiles: IOutputFile[]
+  feedbackToken?: string
+  feedbackEmailSentAt?: Date
   createdAt: Date
   updatedAt: Date
 }
@@ -158,6 +170,16 @@ const PaymentAttemptSchema = new Schema<IPaymentAttempt>(
   { _id: false },
 )
 
+const OutputFileSchema = new Schema<IOutputFile>(
+  {
+    originalName: { type: String, required: true },
+    storedPath: { type: String, required: true },
+    uploadedAt: { type: Date, required: true },
+    uploadedBy: { type: Schema.Types.ObjectId, ref: 'User', required: true },
+  },
+  { _id: false },
+)
+
 const StatusHistoryEntrySchema = new Schema<IStatusHistoryEntry>(
   {
     at: { type: Date, required: true },
@@ -185,10 +207,18 @@ const OrderSchema = new Schema<IOrder>(
     razorpayPaymentId: { type: String },
     razorpaySignature: { type: String },
     paymentStatus: { type: String, enum: ['pending', 'paid', 'failed', 'refunded'], default: 'pending' },
-    orderStatus: { type: String, enum: ['created', 'in_progress', 'on_hold', 'completed', 'cancelled'], default: 'created' },
+    orderStatus: {
+      type: String,
+      enum: ['created', 'in_progress', 'on_hold', 'completed', 'awaiting_feedback', 'closed', 'cancelled'],
+      default: 'created',
+    },
     paymentAttempts: { type: [PaymentAttemptSchema], default: [] },
     statusHistory: { type: [StatusHistoryEntrySchema], default: [] },
     filesPurgedAt: { type: Date },
+    deadline: { type: Date },
+    outputFiles: { type: [OutputFileSchema], default: [] },
+    feedbackToken: { type: String },
+    feedbackEmailSentAt: { type: Date },
   },
   { timestamps: true },
 )
@@ -196,5 +226,6 @@ const OrderSchema = new Schema<IOrder>(
 OrderSchema.index({ customerId: 1, createdAt: -1 })
 OrderSchema.index({ paymentStatus: 1, orderStatus: 1 })
 OrderSchema.index({ orderStatus: 1, paymentStatus: 1, filesPurgedAt: 1 })
+OrderSchema.index({ deadline: 1, paymentStatus: 1, orderStatus: 1 })
 
 export const Order = model<IOrder>('Order', OrderSchema)

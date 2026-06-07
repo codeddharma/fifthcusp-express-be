@@ -23,6 +23,8 @@ const env = cleanEnv(process.env, {
   RAZORPAY_KEY_SECRET: str(),
   RAZORPAY_WEBHOOK_SECRET: str(),
 
+  FRONTEND_URL: str({ default: 'https://fifthcusp.com' }),
+
   UPLOAD_DIR: str({ default: 'uploads' }),
   ORDER_FILES_RETENTION_DAYS: num({ default: 7 }),
   MAX_ORDER_UPLOAD_MB: num({ default: 50 }),
