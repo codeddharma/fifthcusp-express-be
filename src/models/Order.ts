@@ -56,6 +56,7 @@ export interface IServiceSnapshot {
   type: string
   basePrice: number
   discountPercentage: number
+  consultationDurationMinutes?: number
 }
 
 export interface IPaymentAttempt {
@@ -157,6 +158,7 @@ const ServiceSnapshotSchema = new Schema<IServiceSnapshot>(
     type: { type: String, required: true },
     basePrice: { type: Number, required: true },
     discountPercentage: { type: Number, required: true, default: 0 },
+    consultationDurationMinutes: { type: Number },
   },
   { _id: false },
 )

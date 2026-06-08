@@ -1,4 +1,4 @@
-import { cleanEnv, str, port, num } from 'envalid'
+import { cleanEnv, str, port, num, bool } from 'envalid'
 
 const env = cleanEnv(process.env, {
   PORT: port({ default: 5000 }),
@@ -24,6 +24,24 @@ const env = cleanEnv(process.env, {
   RAZORPAY_WEBHOOK_SECRET: str(),
 
   FRONTEND_URL: str({ default: 'https://fifthcusp.com' }),
+  // Public URL of the logo used in emails. Must be publicly reachable — email clients
+  // cannot load images from localhost, so keep this pointing at a deployed host even in dev.
+  EMAIL_LOGO_URL: str({ default: 'https://fifthcusp.com/assets/The%20Fifth%20Cusp_Logo.png' }),
+
+  GOOGLE_SERVICE_ACCOUNT_EMAIL: str(),
+  GOOGLE_PRIVATE_KEY: str(),
+  GOOGLE_CONSULTATION_CALENDAR_ID: str(),
+  GOOGLE_REMEDY_CALENDAR_ID: str(),
+
+  // Workspace mode: when true, auto-generate a unique Google Meet link per booking
+  // and add the customer as an attendee. Requires a Google Workspace account with
+  // Domain-Wide Delegation + GOOGLE_IMPERSONATE_EMAIL set. Leave false on consumer Gmail.
+  GOOGLE_WORKSPACE_MODE: bool({ default: false }),
+  // The Workspace user to impersonate via Domain-Wide Delegation (production only).
+  GOOGLE_IMPERSONATE_EMAIL: str({ default: '' }),
+  // Fallback meeting link used when GOOGLE_WORKSPACE_MODE is false (e.g. a permanent
+  // Google Meet room or Zoom link). Sent to the client in the confirmation email.
+  CONSULTATION_FALLBACK_MEET_LINK: str({ default: '' }),
 
   UPLOAD_DIR: str({ default: 'uploads' }),
   ORDER_FILES_RETENTION_DAYS: num({ default: 7 }),

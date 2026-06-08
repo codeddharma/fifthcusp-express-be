@@ -1,4 +1,5 @@
 import crypto from 'crypto'
+import { randomUUID } from 'crypto'
 import { Types } from 'mongoose'
 import env from '../config/env'
 import { razorpay } from '../config/razorpay'
@@ -8,10 +9,11 @@ import { generateOrderNumber } from '../utils/generateOrderNumber'
 import { buildFormSchema } from '../utils/buildFormSchema'
 import { sendMail } from '../utils/mailer'
 import { orderConfirmationHtml } from '../emails/orderConfirmation'
-import { consultationScheduledHtml } from '../emails/consultationScheduled'
+import { consultationBookingLinkHtml } from '../emails/consultationBookingLink'
 import { Service, IService, IFormInput } from '../models/Service'
 import { Customer } from '../models/Customer'
 import { Order, IOrder, IFormResponseEntry, IOrderAddOn, IOrderPricing, OrderStatus } from '../models/Order'
+import { ConsultationBookingToken } from '../models/ConsultationBookingToken'
 import * as CustomerService from './customer.service'
 import * as UploadService from './upload.service'
 import * as CouponService from './coupon.service'
@@ -192,6 +194,7 @@ export async function createOrder(input: CreateOrderInput): Promise<CreateOrderR
       type: service.type,
       basePrice: service.price,
       discountPercentage: service.discountPercentage ?? 0,
+      consultationDurationMinutes: service.requiresConsultation ? service.consultationDurationMinutes : undefined,
     },
     quantity,
     formResponses,
@@ -272,11 +275,31 @@ async function applyPaymentSuccess(order: IOrder, paymentId: string, signature: 
     }).catch((err) => console.error('[mailer] orderConfirmation failed:', err))
 
     if (service.requiresConsultation) {
-      sendMail({
-        to: customer.email,
-        subject: `Your Consultation is Being Scheduled — ${order.orderNumber}`,
-        html: consultationScheduledHtml(emailBase),
-      }).catch((err) => console.error('[mailer] consultationScheduled failed:', err))
+      // Issue a one-time booking token valid for 30 days
+      const token = randomUUID()
+      const expiresAt = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000)
+      ConsultationBookingToken.create({
+        token,
+        orderId: order._id,
+        customerId: order.customerId,
+        status: 'pending',
+        expiresAt,
+      })
+        .then(() => {
+          const bookingUrl = `${env.FRONTEND_URL}/book-consultation/${token}`
+          return sendMail({
+            to: customer.email,
+            subject: `Schedule Your Consultation — ${order.orderNumber}`,
+            html: consultationBookingLinkHtml({
+              customerName: customer.name,
+              orderNumber: order.orderNumber,
+              serviceName: service.title,
+              bookingUrl,
+              expiresAt,
+            }),
+          })
+        })
+        .catch((err) => console.error('[mailer] consultationBookingLink failed:', err))
     }
   }
 }

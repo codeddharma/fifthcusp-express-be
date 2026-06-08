@@ -1,6 +1,6 @@
 import env from '../config/env'
 
-const logoUrl = `${env.FRONTEND_URL}/assets/The%20Fifth%20Cusp_Logo.png`
+const logoUrl = env.EMAIL_LOGO_URL
 
 export function emailHeader(): string {
   return `

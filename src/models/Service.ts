@@ -85,6 +85,7 @@ export interface IService extends Document {
   // Delivery & notification config
   deliveryDays: number
   requiresConsultation: boolean
+  consultationDurationMinutes: number
   requiresOutputFile: boolean
   feedbackEmailEnabled: boolean
   createdAt: Date
@@ -180,6 +181,7 @@ const ServiceSchema = new Schema<IService>(
     lastSoldDate: { type: Date },
     deliveryDays: { type: Number, default: 7, min: 1 },
     requiresConsultation: { type: Boolean, default: false },
+    consultationDurationMinutes: { type: Number, default: 60, min: 15 },
     requiresOutputFile: { type: Boolean, default: false },
     feedbackEmailEnabled: { type: Boolean, default: false },
   },

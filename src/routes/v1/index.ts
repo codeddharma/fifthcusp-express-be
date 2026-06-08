@@ -12,6 +12,10 @@ import customerRoutes from './customer.routes'
 import pageMetaRoutes from './pageMeta.routes'
 import couponRoutes from './coupon.routes'
 import paymentLinkRoutes from './paymentLink.routes'
+import availabilityWindowRoutes from './availabilityWindow.routes'
+import consultationBookingRoutes from './consultationBooking.routes'
+import consultationEventRoutes from './consultationEvent.routes'
+import remedyEventRoutes from './remedyEvent.routes'
 
 const router = Router()
 
@@ -32,5 +36,9 @@ router.use('/customers', customerRoutes)
 router.use('/page-meta', pageMetaRoutes)
 router.use('/coupons', couponRoutes)
 router.use('/payment-links', paymentLinkRoutes)
+router.use('/availability-windows', availabilityWindowRoutes)
+router.use('/consultation-booking', consultationBookingRoutes)
+router.use('/consultation-events', consultationEventRoutes)
+router.use('/remedy-events', remedyEventRoutes)
 
 export default router
