@@ -1,5 +1,14 @@
 import { Document, model, Schema, Types } from 'mongoose'
 
+export interface ICustomerActivityEntry {
+  at: Date
+  type: string // 'order_placed' | 'payment_completed' | 'consultation_scheduled' | 'remedy_scheduled'
+  message: string
+  refModel?: string
+  refId?: Types.ObjectId
+  meta?: Record<string, unknown>
+}
+
 export interface ICustomer extends Document {
   customerId: string
   email: string
@@ -9,9 +18,22 @@ export interface ICustomer extends Document {
   birthDate?: Date
   anniversaryDate?: Date
   orders: Types.ObjectId[]
+  activityLog: ICustomerActivityEntry[]
   createdAt: Date
   updatedAt: Date
 }
+
+const CustomerActivityEntrySchema = new Schema<ICustomerActivityEntry>(
+  {
+    at: { type: Date, required: true },
+    type: { type: String, required: true },
+    message: { type: String, required: true },
+    refModel: { type: String },
+    refId: { type: Schema.Types.ObjectId },
+    meta: { type: Schema.Types.Mixed },
+  },
+  { _id: false },
+)
 
 const CustomerSchema = new Schema<ICustomer>(
   {
@@ -23,6 +45,7 @@ const CustomerSchema = new Schema<ICustomer>(
     birthDate: { type: Date },
     anniversaryDate: { type: Date },
     orders: [{ type: Schema.Types.ObjectId, ref: 'Order', default: [] }],
+    activityLog: { type: [CustomerActivityEntrySchema], default: [] },
   },
   { timestamps: true },
 )

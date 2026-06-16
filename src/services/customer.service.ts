@@ -1,6 +1,26 @@
-import { Customer, ICustomer } from '../models/Customer'
+import { Types } from 'mongoose'
+import { Customer, ICustomer, ICustomerActivityEntry } from '../models/Customer'
 import { ApiError } from '../utils/ApiError'
 import { HttpMessage, HttpStatus } from '../utils/httpStatus'
+
+/**
+ * Append an entry to a customer's activity log (atomic $push, non-throwing).
+ * Used by order, consultation booking, and remedy flows to build a unified
+ * customer audit trail.
+ */
+export async function logCustomerActivity(
+  customerId: Types.ObjectId | string,
+  entry: Omit<ICustomerActivityEntry, 'at'>,
+): Promise<void> {
+  try {
+    await Customer.updateOne(
+      { _id: customerId },
+      { $push: { activityLog: { at: new Date(), ...entry } } },
+    )
+  } catch (err) {
+    console.error('[customer] logCustomerActivity failed:', err instanceof Error ? err.message : err)
+  }
+}
 
 export interface UpsertCustomerInput {
   email: string

@@ -5,6 +5,7 @@ import { RemedyEvent, IRemedyEvent } from '../models/RemedyEvent'
 import { Customer } from '../models/Customer'
 import { ApiError } from '../utils/ApiError'
 import { Types } from 'mongoose'
+import { logCustomerActivity } from './customer.service'
 
 interface CreateRemedyInput {
   customerId: string
@@ -42,7 +43,7 @@ export async function createRemedyEvent(input: CreateRemedyInput): Promise<IReme
 
   const googleEventId = calendarResponse.data.id!
 
-  return RemedyEvent.create({
+  const remedy = await RemedyEvent.create({
     customerId: input.customerId,
     orderId: input.orderId ? new Types.ObjectId(input.orderId) : undefined,
     remedyName: input.remedyName,
@@ -51,6 +52,16 @@ export async function createRemedyEvent(input: CreateRemedyInput): Promise<IReme
     googleEventId,
     createdBy: input.createdBy,
   })
+
+  await logCustomerActivity(input.customerId, {
+    type: 'remedy_scheduled',
+    message: `Remedy scheduled: ${input.remedyName}`,
+    refModel: 'RemedyEvent',
+    refId: remedy._id as Types.ObjectId,
+    meta: { scheduledAt: input.scheduledAt.toISOString(), notes: input.notes },
+  })
+
+  return remedy
 }
 
 export async function listRemedyEvents(

@@ -9,6 +9,8 @@ import { Order } from '../models/Order'
 import { ApiError } from '../utils/ApiError'
 import { sendMail } from '../utils/mailer'
 import { consultationMeetLinkHtml } from '../emails/consultationMeetLink'
+import { logOrderActivity } from './order.service'
+import { logCustomerActivity } from './customer.service'
 
 export interface AvailableSlot {
   startTime: string // ISO
@@ -228,6 +230,31 @@ export async function bookSlot(token: string, startTimeIso: string) {
   } catch (err) {
     console.error('[consultationBooking] Failed to send confirmation email:', err)
   }
+
+  // Reflect the booking on the order: store the session, advance status to "scheduled", audit.
+  order.consultation = { scheduledAt: startTime, endTime, meetLink, googleEventId, bookedAt: new Date() }
+  if (order.orderStatus === 'created' && order.paymentStatus === 'paid') {
+    const from = order.orderStatus
+    order.orderStatus = 'scheduled'
+    order.statusHistory.push({ at: new Date(), from, to: 'scheduled', note: 'Consultation booked by customer' })
+    logOrderActivity(order, { type: 'status_changed', actor: 'customer', message: `Status changed: ${from} → scheduled`, meta: { from, to: 'scheduled' } })
+  }
+  logOrderActivity(order, {
+    type: 'consultation_scheduled',
+    actor: 'customer',
+    message: 'Consultation booked',
+    meta: { meetLink, startTime: startTime.toISOString(), endTime: endTime.toISOString() },
+  })
+  logOrderActivity(order, { type: 'email_sent', actor: 'system', message: 'Consultation confirmation sent', meta: { emailType: 'consultation_meet_link', to: customer.email } })
+  await order.save()
+
+  await logCustomerActivity(order.customerId, {
+    type: 'consultation_scheduled',
+    message: `Consultation booked for ${serviceName} (${order.orderNumber})`,
+    refModel: 'Order',
+    refId: order._id as any,
+    meta: { meetLink, startTime: startTime.toISOString() },
+  })
 
   return consultationEvent
 }

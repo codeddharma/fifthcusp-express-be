@@ -46,6 +46,9 @@ const env = cleanEnv(process.env, {
   UPLOAD_DIR: str({ default: 'uploads' }),
   ORDER_FILES_RETENTION_DAYS: num({ default: 7 }),
   MAX_ORDER_UPLOAD_MB: num({ default: 50 }),
+
+  // Pending orders older than this are auto-marked failed (abandoned checkout).
+  STALE_PAYMENT_MINUTES: num({ default: 30 }),
 })
 
 export default env

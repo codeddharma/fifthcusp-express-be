@@ -2,7 +2,7 @@ import { Document, model, Schema, Types } from 'mongoose'
 import { FieldType } from './Service'
 
 export type PaymentStatus = 'pending' | 'paid' | 'failed' | 'refunded'
-export type OrderStatus = 'created' | 'in_progress' | 'on_hold' | 'completed' | 'awaiting_feedback' | 'closed' | 'cancelled'
+export type OrderStatus = 'created' | 'scheduled' | 'in_progress' | 'on_hold' | 'completed' | 'awaiting_feedback' | 'closed' | 'cancelled'
 export type FileCompression = 'none' | 'sharp-jpeg' | 'sharp-webp' | 'gzip'
 
 export interface IFormResponseEntry {
@@ -73,6 +73,25 @@ export interface IStatusHistoryEntry {
   note?: string
 }
 
+export type OrderActivityActor = Types.ObjectId | 'system' | 'customer'
+
+export interface IOrderTimelineEntry {
+  at: Date
+  type: string // 'order_created' | 'payment_completed' | 'payment_failed' | 'email_sent'
+               // | 'consultation_scheduled' | 'status_changed' | 'output_files_sent' | 'feedback_requested'
+  message: string
+  actor?: OrderActivityActor
+  meta?: Record<string, unknown>
+}
+
+export interface IOrderConsultation {
+  scheduledAt: Date
+  endTime: Date
+  meetLink: string
+  googleEventId: string
+  bookedAt: Date
+}
+
 export interface IOrder extends Document {
   orderNumber: string
   customerId: Types.ObjectId
@@ -91,6 +110,8 @@ export interface IOrder extends Document {
   orderStatus: OrderStatus
   paymentAttempts: IPaymentAttempt[]
   statusHistory: IStatusHistoryEntry[]
+  timeline: IOrderTimelineEntry[]
+  consultation?: IOrderConsultation
   filesPurgedAt?: Date
   // Delivery & feedback tracking
   deadline?: Date
@@ -193,6 +214,28 @@ const StatusHistoryEntrySchema = new Schema<IStatusHistoryEntry>(
   { _id: false },
 )
 
+const TimelineEntrySchema = new Schema<IOrderTimelineEntry>(
+  {
+    at: { type: Date, required: true },
+    type: { type: String, required: true },
+    message: { type: String, required: true },
+    actor: { type: Schema.Types.Mixed },
+    meta: { type: Schema.Types.Mixed },
+  },
+  { _id: false },
+)
+
+const ConsultationSchema = new Schema<IOrderConsultation>(
+  {
+    scheduledAt: { type: Date, required: true },
+    endTime: { type: Date, required: true },
+    meetLink: { type: String, default: '' },
+    googleEventId: { type: String, required: true },
+    bookedAt: { type: Date, required: true },
+  },
+  { _id: false },
+)
+
 const OrderSchema = new Schema<IOrder>(
   {
     orderNumber: { type: String, required: true, unique: true, trim: true },
@@ -211,11 +254,13 @@ const OrderSchema = new Schema<IOrder>(
     paymentStatus: { type: String, enum: ['pending', 'paid', 'failed', 'refunded'], default: 'pending' },
     orderStatus: {
       type: String,
-      enum: ['created', 'in_progress', 'on_hold', 'completed', 'awaiting_feedback', 'closed', 'cancelled'],
+      enum: ['created', 'scheduled', 'in_progress', 'on_hold', 'completed', 'awaiting_feedback', 'closed', 'cancelled'],
       default: 'created',
     },
     paymentAttempts: { type: [PaymentAttemptSchema], default: [] },
     statusHistory: { type: [StatusHistoryEntrySchema], default: [] },
+    timeline: { type: [TimelineEntrySchema], default: [] },
+    consultation: { type: ConsultationSchema },
     filesPurgedAt: { type: Date },
     deadline: { type: Date },
     outputFiles: { type: [OutputFileSchema], default: [] },

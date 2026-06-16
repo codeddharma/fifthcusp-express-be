@@ -98,6 +98,11 @@ export const getOrderStatus = asyncHandler(async (req: Request, res: Response) =
   sendSuccess(res, HttpMessage.OK, status, HttpStatus.OK)
 })
 
+export const markPaymentAbandoned = asyncHandler(async (req: Request, res: Response) => {
+  await OrderService.markPaymentAbandoned(req.params.orderNumber)
+  sendSuccess(res, HttpMessage.OK, null, HttpStatus.OK)
+})
+
 // ─── Admin ────────────────────────────────────────────────────────────────────
 
 export const adminListOrders = asyncHandler(async (req: Request, res: Response) => {
@@ -148,6 +153,8 @@ export const adminUpdateOrderStatus = asyncHandler(async (req: Request, res: Res
         order.feedbackEmailSentAt = new Date()
         const auditNote = ['Marked completed. Feedback request email sent to customer.', input.note].filter(Boolean).join(' | ')
         order.statusHistory.push({ at: new Date(), by: req.user._id, from, to: 'awaiting_feedback', note: auditNote })
+        OrderService.logOrderActivity(order, { type: 'status_changed', actor: req.user._id, message: `Status changed: ${from} → awaiting_feedback`, meta: { from, to: 'awaiting_feedback', note: auditNote } })
+        OrderService.logOrderActivity(order, { type: 'feedback_requested', actor: req.user._id, message: 'Feedback request email sent', meta: { emailType: 'feedback_request', to: customer.email } })
         await order.save()
 
         sendMail({
@@ -236,6 +243,8 @@ export const adminSendCompletionEmail = asyncHandler(async (req: Request, res: R
     ? 'Completion email sent with PDF attachment. Feedback request email sent to customer.'
     : 'Completion email sent with PDF attachment.'
   order.statusHistory.push({ at: new Date(), by: req.user._id, from, to: order.orderStatus, note: completionNote })
+  OrderService.logOrderActivity(order, { type: 'output_files_sent', actor: req.user._id, message: 'Completion email sent with output files', meta: { emailType: 'order_completed', to: customer.email, fileCount: order.outputFiles.length } })
+  OrderService.logOrderActivity(order, { type: 'status_changed', actor: req.user._id, message: `Status changed: ${from} → ${order.orderStatus}`, meta: { from, to: order.orderStatus } })
 
   if (feedbackEnabled && feedbackToken) {
     order.feedbackToken = feedbackToken
@@ -246,6 +255,7 @@ export const adminSendCompletionEmail = asyncHandler(async (req: Request, res: R
       subject: `Share Your Experience — ${order.orderNumber}`,
       html: feedbackRequestHtml({ customerName: customer.name, orderNumber: order.orderNumber, serviceName: service.title, feedbackUrl }),
     }).catch((err) => console.error('[mailer] feedbackRequest failed:', err))
+    OrderService.logOrderActivity(order, { type: 'feedback_requested', actor: req.user._id, message: 'Feedback request email sent', meta: { emailType: 'feedback_request', to: customer.email } })
   }
 
   await order.save()

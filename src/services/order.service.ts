@@ -12,11 +12,30 @@ import { orderConfirmationHtml } from '../emails/orderConfirmation'
 import { consultationBookingLinkHtml } from '../emails/consultationBookingLink'
 import { Service, IService, IFormInput } from '../models/Service'
 import { Customer } from '../models/Customer'
-import { Order, IOrder, IFormResponseEntry, IOrderAddOn, IOrderPricing, OrderStatus } from '../models/Order'
+import { Order, IOrder, IFormResponseEntry, IOrderAddOn, IOrderPricing, OrderStatus, IOrderTimelineEntry, OrderActivityActor } from '../models/Order'
 import { ConsultationBookingToken } from '../models/ConsultationBookingToken'
 import * as CustomerService from './customer.service'
 import * as UploadService from './upload.service'
 import * as CouponService from './coupon.service'
+
+/** Append an entry to an order's audit timeline (caller is responsible for saving). */
+export function logOrderActivity(order: IOrder, entry: Omit<IOrderTimelineEntry, 'at'>): void {
+  order.timeline.push({ at: new Date(), ...entry })
+}
+
+// ── Order status transition rules ──
+const ALLOWED_TRANSITIONS: Record<OrderStatus, OrderStatus[]> = {
+  created: ['scheduled', 'in_progress', 'on_hold', 'cancelled'],
+  scheduled: ['in_progress', 'on_hold', 'cancelled'],
+  in_progress: ['on_hold', 'completed', 'cancelled'],
+  on_hold: ['in_progress', 'completed', 'cancelled'],
+  completed: ['awaiting_feedback', 'closed'],
+  awaiting_feedback: ['closed'],
+  closed: [],
+  cancelled: [],
+}
+// Statuses that may only be entered once payment is completed.
+const REQUIRES_PAID = new Set<OrderStatus>(['scheduled', 'in_progress', 'completed', 'awaiting_feedback', 'closed'])
 
 interface SelectedAddOnInput {
   key: string
@@ -204,6 +223,7 @@ export async function createOrder(input: CreateOrderInput): Promise<CreateOrderR
     razorpayOrderId: razorpayOrder.id,
     paymentStatus: 'pending',
     orderStatus: 'created',
+    timeline: [{ at: new Date(), type: 'order_created', actor: 'customer', message: `Order placed for ${service.title}` }],
   })
 
   if (couponValidation) {
@@ -235,6 +255,12 @@ async function applyPaymentSuccess(order: IOrder, paymentId: string, signature: 
   order.razorpayPaymentId = paymentId
   if (signature) order.razorpaySignature = signature
   order.paymentAttempts.push({ at: new Date(), eventType, raw })
+  logOrderActivity(order, {
+    type: 'payment_completed',
+    actor: 'system',
+    message: `Payment completed (₹${order.pricing.finalAmount})`,
+    meta: { paymentId, eventType },
+  })
 
   const [customer, service] = await Promise.all([
     Customer.findById(order.customerId),
@@ -247,13 +273,6 @@ async function applyPaymentSuccess(order: IOrder, paymentId: string, signature: 
     deadline.setDate(deadline.getDate() + deliveryDays)
     order.deadline = deadline
   }
-
-  await order.save()
-
-  await Promise.all([
-    Customer.updateOne({ _id: order.customerId }, { $addToSet: { orders: order._id } }),
-    Service.updateOne({ _id: order.serviceId }, { $inc: { soldCount: 1 }, $set: { lastSoldDate: new Date() } }),
-  ])
 
   // Send emails fire-and-forget — do not block the payment response
   if (customer && service && order.deadline) {
@@ -273,6 +292,12 @@ async function applyPaymentSuccess(order: IOrder, paymentId: string, signature: 
         deadline: order.deadline,
       }),
     }).catch((err) => console.error('[mailer] orderConfirmation failed:', err))
+    logOrderActivity(order, {
+      type: 'email_sent',
+      actor: 'system',
+      message: 'Order confirmation email sent',
+      meta: { emailType: 'order_confirmation', to: customer.email },
+    })
 
     if (service.requiresConsultation) {
       // Issue a one-time booking token valid for 30 days
@@ -300,7 +325,30 @@ async function applyPaymentSuccess(order: IOrder, paymentId: string, signature: 
           })
         })
         .catch((err) => console.error('[mailer] consultationBookingLink failed:', err))
+      logOrderActivity(order, {
+        type: 'email_sent',
+        actor: 'system',
+        message: 'Consultation scheduling link sent',
+        meta: { emailType: 'consultation_booking_link', to: customer.email },
+      })
     }
+  }
+
+  await order.save()
+
+  await Promise.all([
+    Customer.updateOne({ _id: order.customerId }, { $addToSet: { orders: order._id } }),
+    Service.updateOne({ _id: order.serviceId }, { $inc: { soldCount: 1 }, $set: { lastSoldDate: new Date() } }),
+  ])
+
+  // Customer activity log
+  if (customer && service) {
+    await CustomerService.logCustomerActivity(order.customerId, {
+      type: 'payment_completed',
+      message: `Paid ₹${order.pricing.finalAmount} for ${service.title} (${order.orderNumber})`,
+      refModel: 'Order',
+      refId: order._id as Types.ObjectId,
+    })
   }
 }
 
@@ -320,6 +368,7 @@ export async function verifyPayment(
     if (order.paymentStatus === 'pending') {
       order.paymentStatus = 'failed'
       order.paymentAttempts.push({ at: new Date(), eventType: 'verify:bad-signature' })
+      logOrderActivity(order, { type: 'payment_failed', actor: 'system', message: 'Payment failed (invalid signature)' })
       await order.save()
     }
     throw new ApiError(HttpStatus.BAD_REQUEST, 'Invalid payment signature')
@@ -357,6 +406,7 @@ export async function handleWebhookEvent(rawBody: Buffer, signature: string | un
     case 'payment.failed':
       if (order.paymentStatus === 'pending') {
         order.paymentStatus = 'failed'
+        logOrderActivity(order, { type: 'payment_failed', actor: 'system', message: 'Payment failed (gateway)' })
       }
       order.paymentAttempts.push({ at: new Date(), eventType: `webhook:${event.event}`, raw: event })
       await order.save()
@@ -415,7 +465,7 @@ export async function getOrderStatusByNumber(orderNumber: string): Promise<{ ord
   return { orderNumber: order.orderNumber, paymentStatus: order.paymentStatus, orderStatus: order.orderStatus }
 }
 
-const ORDER_STATUS_VALUES: OrderStatus[] = ['created', 'in_progress', 'on_hold', 'completed', 'awaiting_feedback', 'closed', 'cancelled']
+const ORDER_STATUS_VALUES: OrderStatus[] = ['created', 'scheduled', 'in_progress', 'on_hold', 'completed', 'awaiting_feedback', 'closed', 'cancelled']
 
 export async function updateOrderStatus(id: string, nextStatus: OrderStatus, adminId: Types.ObjectId, note?: string): Promise<IOrder> {
   if (!ORDER_STATUS_VALUES.includes(nextStatus)) {
@@ -426,8 +476,24 @@ export async function updateOrderStatus(id: string, nextStatus: OrderStatus, adm
   if (order.orderStatus === nextStatus) return order
 
   const from = order.orderStatus
+
+  // Enforce the allowed transition graph (e.g. block created → completed directly)
+  if (!ALLOWED_TRANSITIONS[from].includes(nextStatus)) {
+    throw new ApiError(HttpStatus.BAD_REQUEST, `Cannot move order from "${from}" to "${nextStatus}"`)
+  }
+  // Block starting work / progressing until payment is completed
+  if (REQUIRES_PAID.has(nextStatus) && order.paymentStatus !== 'paid') {
+    throw new ApiError(HttpStatus.BAD_REQUEST, 'Payment must be completed before this status')
+  }
+
   order.orderStatus = nextStatus
   order.statusHistory.push({ at: new Date(), by: adminId, from, to: nextStatus, note })
+  logOrderActivity(order, {
+    type: 'status_changed',
+    actor: adminId,
+    message: `Status changed: ${from} → ${nextStatus}`,
+    meta: { from, to: nextStatus, note },
+  })
 
   if (nextStatus === 'cancelled' && !order.filesPurgedAt) {
     await UploadService.purgeOrderDir(order.orderNumber).catch(() => undefined)
@@ -437,6 +503,19 @@ export async function updateOrderStatus(id: string, nextStatus: OrderStatus, adm
     })
   }
 
+  await order.save()
+  return order
+}
+
+/** Mark a still-pending order as failed when the customer abandons checkout. No-op otherwise. */
+export async function markPaymentAbandoned(orderNumber: string, reason = 'abandoned'): Promise<IOrder | null> {
+  const order = await Order.findOne({ orderNumber })
+  if (!order) return null
+  if (order.paymentStatus !== 'pending') return order
+
+  order.paymentStatus = 'failed'
+  order.paymentAttempts.push({ at: new Date(), eventType: `payment:${reason}` })
+  logOrderActivity(order, { type: 'payment_failed', actor: 'customer', message: `Payment ${reason}` })
   await order.save()
   return order
 }

@@ -9,6 +9,7 @@ const router = Router()
 // ─── Public (customer-facing) ─────────────────────────────────────────────────
 router.post('/', uploadAny, OrderController.createOrder)
 router.post('/:orderNumber/verify', OrderController.verifyPayment)
+router.post('/:orderNumber/payment-abandoned', OrderController.markPaymentAbandoned)
 router.get('/:orderNumber/status', OrderController.getOrderStatus)
 router.post('/feedback', OrderController.submitFeedback)
 
