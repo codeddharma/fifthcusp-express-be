@@ -12,6 +12,7 @@ import customerRoutes from './customer.routes'
 import pageMetaRoutes from './pageMeta.routes'
 import couponRoutes from './coupon.routes'
 import paymentLinkRoutes from './paymentLink.routes'
+import recurringOrderRoutes from './recurringOrder.routes'
 import availabilityWindowRoutes from './availabilityWindow.routes'
 import consultationBookingRoutes from './consultationBooking.routes'
 import consultationEventRoutes from './consultationEvent.routes'
@@ -36,6 +37,7 @@ router.use('/customers', customerRoutes)
 router.use('/page-meta', pageMetaRoutes)
 router.use('/coupons', couponRoutes)
 router.use('/payment-links', paymentLinkRoutes)
+router.use('/recurring-orders', recurringOrderRoutes)
 router.use('/availability-windows', availabilityWindowRoutes)
 router.use('/consultation-booking', consultationBookingRoutes)
 router.use('/consultation-events', consultationEventRoutes)

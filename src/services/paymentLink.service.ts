@@ -8,6 +8,8 @@ import { Customer } from '../models/Customer'
 import { Service } from '../models/Service'
 import { ApiError } from '../utils/ApiError'
 import { HttpMessage, HttpStatus } from '../utils/httpStatus'
+import { sendMail } from '../utils/mailer'
+import { paymentLinkInviteHtml } from '../emails/paymentLinkInvite'
 
 export interface CreatePaymentLinkInput {
   customerId: string
@@ -50,6 +52,22 @@ export async function createPaymentLink(input: CreatePaymentLinkInput): Promise<
     prefillName: customer.name,
     prefillEmail: customer.email,
     prefillPhone: customer.phone,
+  })
+}
+
+/** Emails the customer the secure /pay/{token} link. Used for direct sends and recurring cycles. */
+export async function sendPaymentLinkEmail(link: IPaymentLink): Promise<void> {
+  const payUrl = `${env.FRONTEND_URL}/pay/${link.token}`
+  await sendMail({
+    to: link.prefillEmail,
+    subject: `Payment link: ${link.description}`,
+    html: paymentLinkInviteHtml({
+      customerName: link.prefillName,
+      description: link.description,
+      amount: link.amount,
+      payUrl,
+      expiresAt: link.validUntil,
+    }),
   })
 }
 
