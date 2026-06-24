@@ -17,6 +17,7 @@ import availabilityWindowRoutes from './availabilityWindow.routes'
 import consultationBookingRoutes from './consultationBooking.routes'
 import consultationEventRoutes from './consultationEvent.routes'
 import remedyEventRoutes from './remedyEvent.routes'
+import manifestationCalendarRoutes from './manifestationCalendar.routes'
 
 const router = Router()
 
@@ -42,5 +43,6 @@ router.use('/availability-windows', availabilityWindowRoutes)
 router.use('/consultation-booking', consultationBookingRoutes)
 router.use('/consultation-events', consultationEventRoutes)
 router.use('/remedy-events', remedyEventRoutes)
+router.use('/manifestation-calendar', manifestationCalendarRoutes)
 
 export default router
