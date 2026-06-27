@@ -92,42 +92,42 @@ const SEED_EVENTS: SeedEvent[] = [
     eventType: 'solar-eclipse',
     date: new Date('2026-02-17'),
     description:
-      'An annular solar eclipse where the Moon covers the Sun’s centre, leaving a bright ring. A potent window for release and re-setting intentions — traditionally a time for fasting, mantra, and inward focus rather than starting new ventures.',
+      '<p>An annular solar eclipse where the Moon covers the Sun’s centre, leaving a bright ring. A <strong>potent window for release and re-setting intentions</strong>:</p><ul><li><em>Fast</em> or eat light through the day</li><li>Chant your <em>ishta devata</em> mantra</li><li>Turn inward rather than starting new ventures</li></ul>',
   },
   {
     title: 'Chandra Grahan (Total Lunar Eclipse)',
     eventType: 'lunar-eclipse',
     date: new Date('2026-03-03'),
     description:
-      'A total lunar eclipse turning the full Moon a deep coppery red. Emotionally charged and revealing — ideal for honest reflection, letting go of what no longer serves you, and protective practices.',
+      '<p>A total lunar eclipse turning the full Moon a deep coppery red. <strong>Emotionally charged and revealing</strong> — ideal for:</p><ul><li>Honest <u>self-reflection</u></li><li>Letting go of what no longer serves you</li><li>Protective practices and grounding rituals</li></ul>',
   },
   {
     title: 'Surya Grahan (Total Solar Eclipse)',
     eventType: 'solar-eclipse',
     date: new Date('2026-08-12'),
     description:
-      'A total solar eclipse — one of the most powerful manifestation thresholds of the year. A reset point for long-term goals; sit in stillness, chant, and plant the seed of a single clear intention.',
+      '<p>A total solar eclipse — one of the <strong>most powerful manifestation thresholds</strong> of the year. A reset point for long-term goals:</p><ul><li>Sit in <em>stillness</em></li><li>Chant with full presence</li><li>Plant the seed of a single, clear intention</li></ul>',
   },
   {
     title: 'Chandra Grahan (Partial Lunar Eclipse)',
     eventType: 'lunar-eclipse',
     date: new Date('2026-08-28'),
     description:
-      'A partial lunar eclipse that gently surfaces what needs adjusting. A softer release point — review the intentions set earlier in the year and course-correct with compassion.',
+      '<p>A partial lunar eclipse that gently surfaces what needs adjusting. A <u>softer release point</u>:</p><ul><li>Review the intentions set earlier in the year</li><li>Course-correct with <em>compassion</em>, not judgement</li></ul>',
   },
   {
     title: 'Guru Purnima',
     eventType: 'full-moon',
     date: new Date('2026-07-29'),
     description:
-      'The full Moon dedicated to gratitude for teachers and guides. A high-energy day for expressing thanks, deepening practice, and aligning with abundance.',
+      '<p>The full Moon dedicated to <strong>gratitude for teachers and guides</strong>. A high-energy day for:</p><ul><li>Expressing thanks</li><li>Deepening your practice</li><li>Aligning with <em>abundance</em></li></ul>',
   },
   {
     title: 'Sharad Purnima',
     eventType: 'full-moon',
     date: new Date('2026-10-25'),
     description:
-      'The harvest full Moon, said to shower nectar-like (amrit) energy. Traditionally a night for moonlight meditation, manifesting prosperity, and charging water or intentions under the Moon.',
+      '<p>The harvest full Moon, said to shower <strong>nectar-like (amrit) energy</strong>. Traditionally a night for:</p><ul><li><em>Moonlight meditation</em></li><li>Manifesting prosperity</li><li>Charging water or intentions under the Moon</li></ul>',
   },
 ]
 

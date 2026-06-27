@@ -1,7 +1,7 @@
 import { SortOrder } from 'mongoose'
 import { ApiError } from '../utils/ApiError'
 import { HttpMessage, HttpStatus } from '../utils/httpStatus'
-import { FieldType, IFileUploadField, IFormInput, IService, Service, ServiceType } from '../models/Service'
+import { FieldType, IFileUploadField, IFormInput, IService, IServicePage, Service, ServiceType } from '../models/Service'
 
 // ─── SKU generator ────────────────────────────────────────────────────────────
 
@@ -20,6 +20,7 @@ const f = (fieldKey: string, label: string, type: FieldType, isRequired: boolean
   isRequired,
   order,
   ...extra,
+  validation: type === 'text' && extra.validation?.maxLength == null ? { ...extra.validation, maxLength: 100 } : extra.validation,
 })
 
 const basicPersonal = (startOrder = 0): IFormInput[] => [
@@ -81,7 +82,9 @@ const kundaliDocUpload = (order = 0, isRequired = false): IFileUploadField => ({
 
 // ─── Seed data ────────────────────────────────────────────────────────────────
 
-const SEED_DATA: Partial<IService>[] = [
+type SeedService = Omit<Partial<IService>, 'pages'> & { pages: string[] }
+
+const SEED_DATA: SeedService[] = [
   // ── Home — Basic ──────────────────────────────────────────────────────────────
   {
     title: 'Kundali Reading',
@@ -373,6 +376,28 @@ const SEED_DATA: Partial<IService>[] = [
       label: 'Add Another Family Member',
       maxRepeats: 5,
     },
+  },
+  {
+    sku: 'IKIGAI',
+    title: 'Ikigai - Effortless Growth',
+    subtitle: "What you love, what you're good at, what you can be paid for, what the world needs",
+    description:
+      'A guided 1-on-1 session to map your Ikigai — the intersection of passion, mastery, profession, and vocation — and translate it into a clear, effortless path forward, blending astrology, energy reading, and purpose coaching.',
+    price: 2499,
+    type: 'basic',
+    pages: ['home'],
+    isInSale: false,
+    hasSaleBanner: false,
+    discountPercentage: 0,
+    isActiveService: true,
+    deliveryDays: 7,
+    requiresConsultation: true,
+    consultationDurationMinutes: 60,
+    requiresOutputFile: false,
+    feedbackEmailEnabled: true,
+    formInputs: [...basicPersonal(), questionField(4)],
+    fileUploads: [],
+    addOns: [],
   },
   // ── Energy — Basic ────────────────────────────────────────────────────────────
   {
@@ -814,7 +839,7 @@ const SEED_DATA: Partial<IService>[] = [
     fileUploads: [],
     addOns: [],
   },
-  // ── Material — Programmes ─────────────────────────────────────────────────────
+  // ── Wealth — Programmes ───────────────────────────────────────────────────────
   {
     title: 'Individual Wealth Programme',
     subtitle: 'A personalised wealth blueprint for your money energy',
@@ -822,7 +847,7 @@ const SEED_DATA: Partial<IService>[] = [
       'A personalised wealth blueprint which takes into account everything which governs your money energy. This program identifies your earning potential, your wealth blocks, your best income channels, manifestation frequency, abundance rituals, and a step wise path to building long term financial stability and freedom.',
     price: 0,
     type: 'advanced',
-    pages: ['material'],
+    pages: ['wealth'],
     isInSale: false,
     hasSaleBanner: false,
     discountPercentage: 0,
@@ -852,7 +877,7 @@ const SEED_DATA: Partial<IService>[] = [
       'A strategic and energetic optimisation programme for founders and businesses across all stages, from pre-seed ideas to fully operational companies seeking clarity, growth, and higher profitability.\n\nThis consultation blends astrology, Vastu, operational insight, financial logic, and practical business psychology to align your organisation with its strongest earning potential.\n\nWe evaluate founder charts, leadership alignment, business timelines, planetary success periods, and energetic strengths to understand the natural rhythm and scalability of the business.\n\nSimultaneously, we fine tune real world aspects such as vendor vetting, site selection, manufacturing layouts, process efficiency, manpower structuring, machinery choices, supply chain integrity, product positioning, pricing strategy, marketing funnels, customer segments, and market entry roadmaps.\n\nWe identify energy leaks in the business, both operational and energetic, and align your physical space, workflows, and decision making with your most favourable zones for revenue, visibility, and long-term growth.\n\nEvery recommendation is tied to tangible KPIs, ROI projections, cost benefit analysis, and industry specific realities so your decisions feel informed, timely, and strategically grounded.\n\nWhether you are building from zero or optimising an existing company, this process removes uncertainty, eliminates hit and trial strategies, reduces risk, prevents avoidable losses, improves cash flow, accelerates your break-even timeline, and strengthens your overall business architecture.\n\nThis is where commercial intelligence meets energetic precision so your business stops relying on guesswork and starts operating from clarity, alignment, and measurable outcomes.\n\nA business that matches its energetic signature becomes easier to scale, more resilient, and naturally profitable.',
     price: 0,
     type: 'advanced',
-    pages: ['material'],
+    pages: ['wealth'],
     isInSale: false,
     hasSaleBanner: false,
     discountPercentage: 0,
@@ -883,7 +908,7 @@ const SEED_DATA: Partial<IService>[] = [
       'A transformational inner work programme that rewires your wealth frequency from the inside out, guiding you into a reality where abundance is not something you pursue or have to grind for. It is something you naturally emanate. It builds a smooth eco-system of finances for you.\n\nThis programme changes your relationship with money and makes it easy for you to attract money 24x7. It allows you the freedom of your money working for you, not the other way around. It dissolves the limiting beliefs, subconscious patterns, emotional residues, ancestral imprints, and energetic leaks that restrict the flow of money into your life. You learn the resonating beliefs, your energies are elevated, your chakras are recalibrated, your aura is strengthened, and your manifestation field expands into a powerful, magnetic space capable of attracting and sustaining greater prosperity like it\'s your second nature.\n\nAs your inner system strengthens, you receive personalised affirmations, vision boards, wealth rituals, identity elevation practices, environmental and Vastu corrections, and astrological timelines that reveal your most potent periods for growth and opportunity.\n\nWhat we will be working with is a complete reprogramming of how you attract, receive, and sustain wealth. You rise into a self that no longer strives for abundance from the outside. You become the source of it. Money comes to you naturally, and with ease.\n\nIt is open for limited slots only! If the list is full, you can join the waiting list and you will be offered the slot on a priority basis.',
     price: 0,
     type: 'advanced',
-    pages: ['material'],
+    pages: ['wealth'],
     isInSale: false,
     hasSaleBanner: false,
     discountPercentage: 0,
@@ -1481,10 +1506,17 @@ export async function getAllServices(onlyActive = false, type?: ServiceType, pag
   const filter: Record<string, unknown> = {}
   if (onlyActive) filter.isActiveService = true
   if (type) filter.type = type
-  if (page) filter.pages = page.toLowerCase()
+  const lowerPage = page?.toLowerCase()
+  if (lowerPage) filter.pages = { $elemMatch: { page: lowerPage } }
   const projection = onlyActive ? { createdAt: 0, updatedAt: 0, __v: 0 } : { __v: 0 }
   const sort: { [key: string]: SortOrder } = onlyActive ? { isInSale: -1, createdAt: -1 } : { createdAt: -1 }
-  return Service.find(filter, projection).sort(sort)
+  const services = await Service.find(filter, projection).sort(sort)
+  if (!lowerPage) return services
+  return services.sort((a, b) => {
+    const orderA = a.pages.find((p) => p.page === lowerPage)?.order ?? 0
+    const orderB = b.pages.find((p) => p.page === lowerPage)?.order ?? 0
+    return orderA - orderB
+  })
 }
 
 export async function getServiceById(id: string): Promise<IService> {
@@ -1493,13 +1525,74 @@ export async function getServiceById(id: string): Promise<IService> {
   return service
 }
 
+// ─── Listing-order maintenance ─────────────────────────────────────────────────
+// Orders form a dense 0..n-1 sequence per page. Inserting/moving/removing a
+// service's position on a page shifts every other service on that page to
+// keep the sequence dense and unique, instead of rejecting the write.
+
+type OrderRange = { $gte?: number; $gt?: number; $lte?: number; $lt?: number }
+
+async function shiftOrders(page: string, range: OrderRange, delta: number, excludeId?: string): Promise<void> {
+  const elemCondition = { page, order: range }
+  const filter: Record<string, unknown> = { pages: { $elemMatch: elemCondition } }
+  if (excludeId) filter._id = { $ne: excludeId }
+  await Service.updateMany(
+    filter,
+    { $inc: { 'pages.$[elem].order': delta } },
+    { arrayFilters: [{ 'elem.page': page, 'elem.order': range }] },
+  )
+}
+
+async function insertPages(pages: IServicePage[]): Promise<void> {
+  for (const { page, order } of pages) {
+    await shiftOrders(page, { $gte: order }, 1)
+  }
+}
+
+async function removePages(pages: IServicePage[]): Promise<void> {
+  for (const { page, order } of pages) {
+    await shiftOrders(page, { $gt: order }, -1)
+  }
+}
+
+async function applyPageOrderChanges(serviceId: string, oldPages: IServicePage[], newPages: IServicePage[]): Promise<void> {
+  const oldByPage = new Map(oldPages.map((p) => [p.page, p.order]))
+  const newByPage = new Map(newPages.map((p) => [p.page, p.order]))
+  const allPages = new Set([...oldByPage.keys(), ...newByPage.keys()])
+
+  for (const page of allPages) {
+    const oldOrder = oldByPage.get(page)
+    const newOrder = newByPage.get(page)
+
+    if (oldOrder === undefined && newOrder !== undefined) {
+      // joined this page — make room at the target slot
+      await shiftOrders(page, { $gte: newOrder }, 1, serviceId)
+    } else if (oldOrder !== undefined && newOrder === undefined) {
+      // left this page — close the gap it left behind
+      await shiftOrders(page, { $gt: oldOrder }, -1, serviceId)
+    } else if (oldOrder !== undefined && newOrder !== undefined && oldOrder !== newOrder) {
+      if (newOrder > oldOrder) {
+        await shiftOrders(page, { $gt: oldOrder, $lte: newOrder }, -1, serviceId)
+      } else {
+        await shiftOrders(page, { $gte: newOrder, $lt: oldOrder }, 1, serviceId)
+      }
+    }
+  }
+}
+
 export async function createService(data: Partial<IService>): Promise<IService> {
+  if (data.pages) await insertPages(data.pages)
   return Service.create({ ...data, sku: generateSku(data.title ?? 'SERVICE') })
 }
 
 export async function updateService(id: string, data: Partial<IService>): Promise<IService> {
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const { sku: _sku, ...safeData } = data as IService & { sku?: string }
+  if (safeData.pages) {
+    const current = await Service.findById(id)
+    if (!current) throw new ApiError(HttpStatus.NOT_FOUND, HttpMessage.NOT_FOUND)
+    await applyPageOrderChanges(id, current.pages, safeData.pages)
+  }
   const service = await Service.findByIdAndUpdate(id, safeData, { new: true, runValidators: true })
   if (!service) throw new ApiError(HttpStatus.NOT_FOUND, HttpMessage.NOT_FOUND)
   return service
@@ -1508,11 +1601,21 @@ export async function updateService(id: string, data: Partial<IService>): Promis
 export async function deleteService(id: string): Promise<void> {
   const service = await Service.findByIdAndDelete(id)
   if (!service) throw new ApiError(HttpStatus.NOT_FOUND, HttpMessage.NOT_FOUND)
+  await removePages(service.pages)
 }
 
 export async function seedServices(): Promise<void> {
   await Service.deleteMany({})
-  const withSkus = SEED_DATA.map((s) => ({ ...s, sku: generateSku(s.title ?? 'SERVICE') }))
+  const pageCounters: Record<string, number> = {}
+  const withSkus = SEED_DATA.map((s) => ({
+    ...s,
+    sku: s.sku ?? generateSku(s.title ?? 'SERVICE'),
+    pages: s.pages.map((page) => {
+      const order = pageCounters[page] ?? 0
+      pageCounters[page] = order + 1
+      return { page, order }
+    }),
+  }))
   await Service.insertMany(withSkus)
   console.log(`Seeded ${withSkus.length} astrology services`)
 }

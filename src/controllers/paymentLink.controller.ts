@@ -37,6 +37,7 @@ export const listPaymentLinks = asyncHandler(async (req: Request, res: Response)
 export const createPaymentLink = asyncHandler(async (req: Request, res: Response) => {
   const input = createSchema.parse(req.body)
   const link = await PaymentLinkService.createPaymentLink(input)
+  await PaymentLinkService.sendPaymentLinkEmail(link)
   sendSuccess(res, HttpMessage.CREATED, link, HttpStatus.CREATED)
 })
 

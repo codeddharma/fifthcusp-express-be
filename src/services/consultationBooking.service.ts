@@ -215,6 +215,7 @@ export async function bookSlot(token: string, startTimeIso: string) {
   try {
     await sendMail({
       to: customer.email,
+      from: env.CONSULTATION_SMTP_FROM,
       subject: `Your ${serviceName} consultation is confirmed`,
       html: consultationMeetLinkHtml({
         customerName: customer.name,

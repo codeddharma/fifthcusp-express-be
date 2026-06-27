@@ -314,6 +314,7 @@ async function applyPaymentSuccess(order: IOrder, paymentId: string, signature: 
           const bookingUrl = `${env.FRONTEND_URL}/book-consultation/${token}`
           return sendMail({
             to: customer.email,
+            from: env.CONSULTATION_SMTP_FROM,
             subject: `Schedule Your Consultation — ${order.orderNumber}`,
             html: consultationBookingLinkHtml({
               customerName: customer.name,

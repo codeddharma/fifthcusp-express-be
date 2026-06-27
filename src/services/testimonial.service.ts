@@ -58,7 +58,7 @@ export async function deleteTestimonial(id: string) {
 const SEED_DATA: Partial<ITestimonial>[] = [
   {
     clientName: 'Priya Mehta',
-    services: ['material'],
+    services: ['wealth'],
     feedback:
       'The material consultation completely transformed how I think about the items in my home. I never realised how much the metals and fabrics around me were affecting my energy levels. After following the recommendations, my home feels lighter and I sleep much better.',
     isApproved: true,
@@ -67,7 +67,7 @@ const SEED_DATA: Partial<ITestimonial>[] = [
   },
   {
     clientName: 'Rajan Shetty',
-    services: ['material'],
+    services: ['wealth'],
     feedback:
       'I was sceptical at first, but the detailed analysis of materials used in my office was eye-opening. Switching to recommended wood finishes and removing certain metal décor pieces noticeably reduced the tension among my team. Highly recommend this service to any business owner.',
     isApproved: true,
@@ -76,7 +76,7 @@ const SEED_DATA: Partial<ITestimonial>[] = [
   },
   {
     clientName: 'Ananya Krishnan',
-    services: ['material'],
+    services: ['wealth'],
     feedback:
       'The consultant was thorough and easy to understand. I learned which fabrics were best suited for each room and why certain colours in synthetic materials were draining the positive energy of my space. Simple changes, remarkable results.',
     isApproved: true,
@@ -85,7 +85,7 @@ const SEED_DATA: Partial<ITestimonial>[] = [
   },
   {
     clientName: 'Deepak Oberoi',
-    services: ['material'],
+    services: ['wealth'],
     feedback:
       'After years of feeling unsettled in my own home, the material audit identified issues I had completely overlooked. Replacing certain stone surfaces and adjusting the placement of mirrors made an immediate difference. My family now comments on how welcoming our home feels.',
     isApproved: true,
@@ -94,7 +94,7 @@ const SEED_DATA: Partial<ITestimonial>[] = [
   },
   {
     clientName: 'Sunita Joshi',
-    services: ['material'],
+    services: ['wealth'],
     feedback:
       'I booked the material consultation before renovating my kitchen and it saved me from making costly mistakes. The guidance on which countertop materials attract prosperity and which combinations to avoid was practical and backed by clear reasoning. Worth every rupee.',
     isApproved: true,
@@ -103,7 +103,7 @@ const SEED_DATA: Partial<ITestimonial>[] = [
   },
   {
     clientName: 'Arjun Pillai',
-    services: ['material'],
+    services: ['wealth'],
     feedback:
       'The Fifth Cusp team was professional and knowledgeable. Their material analysis helped me choose the right flooring and furniture finishes for my new flat. The report was detailed and the follow-up session cleared all my doubts. I am already seeing positive changes.',
     isApproved: true,

@@ -18,6 +18,7 @@ const env = cleanEnv(process.env, {
   SMTP_USER: str(),
   SMTP_PASS: str(),
   SMTP_FROM: str(),
+  CONSULTATION_SMTP_FROM: str({ default: 'astrology@thefifthcusp.com' }),
 
   RAZORPAY_KEY_ID: str(),
   RAZORPAY_KEY_SECRET: str(),

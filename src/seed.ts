@@ -8,6 +8,7 @@ import { seedBlogs } from './services/blog.service'
 import { seedUsers } from './services/user.service'
 import { seedPageMeta } from './services/pageMeta.service'
 import { seedCalendarEvents } from './services/calendarEvent.service'
+import { seedDisclaimerBanner } from './services/disclaimerBanner.service'
 
 async function runSeeds() {
   await connectDB()
@@ -19,6 +20,7 @@ async function runSeeds() {
   await seedBlogs()
   await seedPageMeta()
   await seedCalendarEvents()
+  await seedDisclaimerBanner()
   console.log('All seeds completed')
   process.exit(0)
 }

@@ -109,7 +109,7 @@ const SEED_DATA: Partial<IFaq>[] = [
     ],
   },
   {
-    page: 'material',
+    page: 'wealth',
     faqs: [
       {
         question: 'What is the Individual Wealth Programme?',

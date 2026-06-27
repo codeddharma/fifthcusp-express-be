@@ -16,11 +16,12 @@ interface SendMailOptions {
   subject: string
   html: string
   attachments?: { filename: string; path: string }[]
+  from?: string
 }
 
 export async function sendMail(options: SendMailOptions): Promise<void> {
   await transporter.sendMail({
-    from: env.SMTP_FROM,
+    from: options.from ?? env.SMTP_FROM,
     to: options.to,
     subject: options.subject,
     html: options.html,

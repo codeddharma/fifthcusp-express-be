@@ -61,9 +61,14 @@ const repeatableGroupSchema = z.object({
   maxRepeats: z.number().int().min(1).max(20).default(1),
 })
 
+const pageWithOrderSchema = z.object({
+  page: z.string().min(1),
+  order: z.number().int().min(0),
+})
+
 const serviceTypeValidation = (schema: z.ZodObject<z.ZodRawShape>) =>
   schema.superRefine((data, ctx) => {
-    const isAstrologyPage = data.pages?.includes('astrology')
+    const isAstrologyPage = data.pages?.some((p: { page: string }) => p.page === 'astrology')
     if (!data.type) return
     if (isAstrologyPage && (GENERIC_TYPES as readonly string[]).includes(data.type)) {
       ctx.addIssue({
@@ -88,7 +93,7 @@ const createServiceSchema = serviceTypeValidation(
     description: z.string().min(1),
     price: z.number().min(0),
     type: z.enum(['basic', 'advanced', 'practice', 'numerology', 'consultation', 'reports_basic', 'reports_advanced']),
-    pages: z.array(z.string().min(1)).min(1),
+    pages: z.array(pageWithOrderSchema).min(1),
     formInputs: z.array(formInputSchema).optional().default([]),
     fileUploads: z.array(fileUploadSchema).optional().default([]),
     addOns: z.array(addOnSchema).optional().default([]),
@@ -108,7 +113,7 @@ const updateServiceSchema = serviceTypeValidation(
     description: z.string().min(1).optional(),
     price: z.number().min(0).optional(),
     type: z.enum(['basic', 'advanced', 'practice', 'numerology', 'consultation', 'reports_basic', 'reports_advanced']).optional(),
-    pages: z.array(z.string().min(1)).min(1).optional(),
+    pages: z.array(pageWithOrderSchema).min(1).optional(),
     formInputs: z.array(formInputSchema).optional(),
     fileUploads: z.array(fileUploadSchema).optional(),
     addOns: z.array(addOnSchema).optional(),

@@ -20,7 +20,7 @@ const createJobOpeningSchema = z.object({
   responsibilities: z.array(z.string().min(1)).min(1),
   salaryMin: z.number().optional(),
   salaryMax: z.number().optional(),
-  applicationDeadline: z.string().datetime().optional(),
+  applicationDeadline: z.coerce.date().optional(),
   isActive: z.boolean().optional(),
 })
 
@@ -47,17 +47,15 @@ export const getJobOpening = asyncHandler(async (req: Request, res: Response) =>
 
 export const createJobOpening = asyncHandler(async (req: Request, res: Response) => {
   const input = createJobOpeningSchema.parse(req.body)
-  const data = { ...input, applicationDeadline: input.applicationDeadline ? new Date(input.applicationDeadline) : undefined }
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const job = await JobOpeningService.createJobOpening(data as any)
+  const job = await JobOpeningService.createJobOpening(input as any)
   sendSuccess(res, HttpMessage.CREATED, job, HttpStatus.CREATED)
 })
 
 export const updateJobOpening = asyncHandler(async (req: Request, res: Response) => {
   const input = updateJobOpeningSchema.parse(req.body)
-  const data = { ...input, applicationDeadline: input.applicationDeadline ? new Date(input.applicationDeadline) : undefined }
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const job = await JobOpeningService.updateJobOpening(req.params.id, data as any)
+  const job = await JobOpeningService.updateJobOpening(req.params.id, input as any)
   sendSuccess(res, HttpMessage.UPDATED, job, HttpStatus.OK)
 })
 

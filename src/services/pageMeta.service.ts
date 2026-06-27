@@ -69,10 +69,10 @@ const SEED_PAGES: PageMetaInput[] = [
     metaKeywords: ['manifestation', 'law of attraction', 'abundance', 'intention setting'],
   },
   {
-    pagePath: '/material',
-    metaTitle: 'Material & Wellbeing Services — The Fifth Cusp',
-    metaDescription: 'Explore holistic wellbeing and material harmony services curated by The Fifth Cusp.',
-    metaKeywords: ['wellbeing', 'holistic health', 'spiritual wellbeing'],
+    pagePath: '/wealth',
+    metaTitle: 'Wealth & Abundance Services — The Fifth Cusp',
+    metaDescription: 'Explore wealth, abundance, and material harmony services curated by The Fifth Cusp.',
+    metaKeywords: ['wealth', 'abundance', 'wellbeing', 'holistic health'],
   },
   {
     pagePath: '/tarot-reading',
@@ -89,6 +89,9 @@ const SEED_PAGES: PageMetaInput[] = [
 ]
 
 export async function seedPageMeta(): Promise<void> {
+  // One-time cleanup: '/material' was renamed to '/wealth'.
+  await PageMeta.deleteOne({ pagePath: '/material' })
+
   for (const page of SEED_PAGES) {
     await PageMeta.findOneAndUpdate(
       { pagePath: page.pagePath },

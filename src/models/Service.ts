@@ -48,6 +48,11 @@ export interface IFileUploadField {
   order: number
 }
 
+export interface IServicePage {
+  page: string
+  order: number
+}
+
 export interface IServiceAddOn {
   key: string
   label: string
@@ -70,7 +75,7 @@ export interface IService extends Document {
   description: string
   price: number
   type: ServiceType
-  pages: string[]
+  pages: IServicePage[]
   formInputs: IFormInput[]
   fileUploads: IFileUploadField[]
   addOns: IServiceAddOn[]
@@ -124,6 +129,21 @@ const FormInputSchema = new Schema<IFormInput>(
   { _id: false },
 )
 
+FormInputSchema.pre('validate', function (next) {
+  if (this.type === 'text' && this.validation?.maxLength == null) {
+    this.validation = { ...(this.validation ?? {}), maxLength: 100 }
+  }
+  next()
+})
+
+const ServicePageSchema = new Schema<IServicePage>(
+  {
+    page: { type: String, required: true, trim: true, lowercase: true },
+    order: { type: Number, required: true, min: 0 },
+  },
+  { _id: false },
+)
+
 const FileUploadFieldSchema = new Schema<IFileUploadField>(
   {
     fieldKey: { type: String, required: true, trim: true },
@@ -167,7 +187,7 @@ const ServiceSchema = new Schema<IService>(
     description: { type: String, required: true, trim: true },
     price: { type: Number, required: true, min: 0 },
     type: { type: String, enum: ['basic', 'advanced', 'practice', 'numerology', 'consultation', 'reports_basic', 'reports_advanced'], required: true },
-    pages: { type: [String], required: true },
+    pages: { type: [ServicePageSchema], required: true },
     formInputs: { type: [FormInputSchema], default: [] },
     fileUploads: { type: [FileUploadFieldSchema], default: [] },
     addOns: { type: [ServiceAddOnSchema], default: [] },
