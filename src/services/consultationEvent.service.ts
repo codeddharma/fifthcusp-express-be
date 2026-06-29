@@ -1,6 +1,8 @@
+import { Types } from 'mongoose'
 import { calendar } from '../config/googleCalendar'
 import env from '../config/env'
 import { ConsultationEvent, IConsultationEvent } from '../models/ConsultationEvent'
+import { Order } from '../models/Order'
 import { ApiError } from '../utils/ApiError'
 
 interface ListFilters {
@@ -9,12 +11,14 @@ interface ListFilters {
   customerId?: string
   page?: number
   limit?: number
+  // Set when the requester is an employee — restricts results to their assigned orders.
+  assignedTo?: Types.ObjectId
 }
 
 export async function listConsultationEvents(
   filters: ListFilters,
 ): Promise<{ items: IConsultationEvent[]; total: number }> {
-  const { from, to, customerId, page = 1, limit = 20 } = filters
+  const { from, to, customerId, page = 1, limit = 20, assignedTo } = filters
   const query: Record<string, unknown> = {}
 
   if (from || to) {
@@ -23,6 +27,10 @@ export async function listConsultationEvents(
     if (to) (query.startTime as any).$lte = to
   }
   if (customerId) query.customerId = customerId
+  if (assignedTo) {
+    const orderIds = await Order.find({ assignedTo }).distinct('_id')
+    query.orderId = { $in: orderIds }
+  }
 
   const [items, total] = await Promise.all([
     ConsultationEvent.find(query)

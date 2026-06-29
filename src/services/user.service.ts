@@ -1,12 +1,14 @@
 import { User } from '../models/User'
 import { ApiError } from '../utils/ApiError'
 import { UserRole } from '../types/user.types'
+import { ServiceType } from '../models/Service'
 
 interface CreateUserInput {
   name: string
   email: string
   password: string
   role: UserRole
+  specialties?: ServiceType[]
   createdBy: string
 }
 
@@ -14,6 +16,7 @@ interface UpdateUserInput {
   name?: string
   role?: UserRole
   isActive?: boolean
+  specialties?: ServiceType[]
 }
 
 export async function createUser(input: CreateUserInput) {
@@ -25,6 +28,7 @@ export async function createUser(input: CreateUserInput) {
     email: input.email,
     passwordHash: input.password,
     role: input.role,
+    specialties: input.specialties ?? [],
     createdBy: input.createdBy,
   })
   return user

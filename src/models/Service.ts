@@ -2,6 +2,8 @@ import { Document, model, Schema } from 'mongoose'
 
 export type ServiceType = 'basic' | 'advanced' | 'practice' | 'numerology' | 'consultation' | 'reports_basic' | 'reports_advanced'
 
+export const SERVICE_TYPES: ServiceType[] = ['basic', 'advanced', 'practice', 'numerology', 'consultation', 'reports_basic', 'reports_advanced']
+
 export type FieldType =
   | 'text'
   | 'textarea'
@@ -186,7 +188,7 @@ const ServiceSchema = new Schema<IService>(
     subtitle: { type: String, required: true, trim: true },
     description: { type: String, required: true, trim: true },
     price: { type: Number, required: true, min: 0 },
-    type: { type: String, enum: ['basic', 'advanced', 'practice', 'numerology', 'consultation', 'reports_basic', 'reports_advanced'], required: true },
+    type: { type: String, enum: SERVICE_TYPES, required: true },
     pages: { type: [ServicePageSchema], required: true },
     formInputs: { type: [FormInputSchema], default: [] },
     fileUploads: { type: [FileUploadFieldSchema], default: [] },

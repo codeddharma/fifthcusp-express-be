@@ -1,6 +1,7 @@
 import { Schema, model, Document } from 'mongoose'
 import bcrypt from 'bcryptjs'
 import { IUser } from '../types/user.types'
+import { SERVICE_TYPES } from './Service'
 
 export interface IUserDocument extends IUser, Document {
   comparePassword(candidate: string): Promise<boolean>
@@ -13,6 +14,7 @@ const userSchema = new Schema<IUserDocument>(
     passwordHash: { type: String, required: true },
     role: { type: String, enum: ['admin', 'manager', 'employee'], required: true },
     isActive: { type: Boolean, default: true },
+    specialties: { type: [String], enum: SERVICE_TYPES, default: [] },
     createdBy: { type: Schema.Types.ObjectId, ref: 'User' },
   },
   { timestamps: true },

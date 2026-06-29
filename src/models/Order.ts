@@ -112,6 +112,8 @@ export interface IOrder extends Document {
   statusHistory: IStatusHistoryEntry[]
   timeline: IOrderTimelineEntry[]
   consultation?: IOrderConsultation
+  // Staff member responsible for fulfilling this order (manual today; basis for future auto-assignment).
+  assignedTo?: Types.ObjectId
   filesPurgedAt?: Date
   // Delivery & feedback tracking
   deadline?: Date
@@ -261,6 +263,7 @@ const OrderSchema = new Schema<IOrder>(
     statusHistory: { type: [StatusHistoryEntrySchema], default: [] },
     timeline: { type: [TimelineEntrySchema], default: [] },
     consultation: { type: ConsultationSchema },
+    assignedTo: { type: Schema.Types.ObjectId, ref: 'User' },
     filesPurgedAt: { type: Date },
     deadline: { type: Date },
     outputFiles: { type: [OutputFileSchema], default: [] },
@@ -270,6 +273,7 @@ const OrderSchema = new Schema<IOrder>(
   { timestamps: true },
 )
 
+OrderSchema.index({ assignedTo: 1, createdAt: -1 })
 OrderSchema.index({ customerId: 1, createdAt: -1 })
 OrderSchema.index({ paymentStatus: 1, orderStatus: 1 })
 OrderSchema.index({ orderStatus: 1, paymentStatus: 1, filesPurgedAt: 1 })

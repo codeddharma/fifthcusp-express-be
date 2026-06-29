@@ -3,18 +3,21 @@ import { z } from 'zod'
 import * as UserService from '../services/user.service'
 import { asyncHandler } from '../utils/asyncHandler'
 import { sendSuccess } from '../utils/ApiResponse'
+import { SERVICE_TYPES, ServiceType } from '../models/Service'
 
 const createUserSchema = z.object({
   name: z.string().min(1),
   email: z.string().email(),
   password: z.string().min(8),
   role: z.enum(['admin', 'manager', 'employee']),
+  specialties: z.array(z.enum(SERVICE_TYPES as [ServiceType, ...ServiceType[]])).optional(),
 })
 
 const updateUserSchema = z.object({
   name: z.string().min(1).optional(),
   role: z.enum(['admin', 'manager', 'employee']).optional(),
   isActive: z.boolean().optional(),
+  specialties: z.array(z.enum(SERVICE_TYPES as [ServiceType, ...ServiceType[]])).optional(),
 })
 
 export const createUser = asyncHandler(async (req: Request, res: Response) => {

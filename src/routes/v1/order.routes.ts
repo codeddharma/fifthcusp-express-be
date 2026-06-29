@@ -14,14 +14,17 @@ router.get('/:orderNumber/status', OrderController.getOrderStatus)
 router.post('/feedback', OrderController.submitFeedback)
 
 // ─── Admin ────────────────────────────────────────────────────────────────────
-router.get('/admin/list', authenticate, authorize('admin'), OrderController.adminListOrders)
+// Employees only get list/detail/download/output-file-upload, and only for orders
+// assigned to them — enforced in the controller/service, not just the role check below.
+router.get('/admin/list', authenticate, authorize('admin', 'employee'), OrderController.adminListOrders)
 router.get('/admin/deadlines', authenticate, authorize('admin'), OrderController.adminGetDeadlines)
 router.post('/admin/purge-files', authenticate, authorize('admin'), OrderController.adminPurgeOrderFiles)
 router.post('/admin/bulk-feedback-email', authenticate, authorize('admin'), OrderController.adminBulkFeedbackEmail)
-router.get('/admin/:id', authenticate, authorize('admin'), OrderController.adminGetOrder)
+router.get('/admin/:id', authenticate, authorize('admin', 'employee'), OrderController.adminGetOrder)
 router.patch('/admin/:id/status', authenticate, authorize('admin'), OrderController.adminUpdateOrderStatus)
-router.get('/admin/:id/files/:fieldKey', authenticate, authorize('admin'), OrderController.adminDownloadOrderFile)
-router.post('/admin/:id/output-files', authenticate, authorize('admin'), uploadSingle, OrderController.adminUploadOutputFile)
+router.patch('/admin/:id/assign', authenticate, authorize('admin'), OrderController.adminAssignOrder)
+router.get('/admin/:id/files/:fieldKey', authenticate, authorize('admin', 'employee'), OrderController.adminDownloadOrderFile)
+router.post('/admin/:id/output-files', authenticate, authorize('admin', 'employee'), uploadSingle, OrderController.adminUploadOutputFile)
 router.post('/admin/:id/send-completion-email', authenticate, authorize('admin'), OrderController.adminSendCompletionEmail)
 
 export default router

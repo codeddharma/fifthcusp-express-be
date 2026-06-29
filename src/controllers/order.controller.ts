@@ -105,8 +105,12 @@ export const markPaymentAbandoned = asyncHandler(async (req: Request, res: Respo
 
 // ─── Admin ────────────────────────────────────────────────────────────────────
 
+// Employees only ever see their own orders — admin/manager see everything.
+const assignedToFor = (req: Request) => (req.user!.role === 'employee' ? req.user!._id : undefined)
+
 export const adminListOrders = asyncHandler(async (req: Request, res: Response) => {
   const result = await OrderService.listOrders({
+    assignedTo: assignedToFor(req),
     paymentStatus: typeof req.query.paymentStatus === 'string' ? req.query.paymentStatus : undefined,
     orderStatus: typeof req.query.orderStatus === 'string' ? req.query.orderStatus : undefined,
     serviceSku: typeof req.query.serviceSku === 'string' ? req.query.serviceSku : undefined,
@@ -125,8 +129,16 @@ export const adminListOrders = asyncHandler(async (req: Request, res: Response) 
 })
 
 export const adminGetOrder = asyncHandler(async (req: Request, res: Response) => {
-  const order = await OrderService.getOrderById(req.params.id)
+  const order = await OrderService.getOrderById(req.params.id, assignedToFor(req))
   sendSuccess(res, HttpMessage.OK, order, HttpStatus.OK)
+})
+
+const assignOrderSchema = z.object({ userId: z.string().min(1).nullable() })
+
+export const adminAssignOrder = asyncHandler(async (req: Request, res: Response) => {
+  const input = assignOrderSchema.parse(req.body)
+  const order = await OrderService.assignOrder(req.params.id, input.userId)
+  sendSuccess(res, HttpMessage.UPDATED, order, HttpStatus.OK)
 })
 
 export const adminUpdateOrderStatus = asyncHandler(async (req: Request, res: Response) => {
@@ -176,7 +188,7 @@ export const adminUpdateOrderStatus = asyncHandler(async (req: Request, res: Res
 export const adminDownloadOrderFile = asyncHandler(async (req: Request, res: Response) => {
   const fieldKey = req.params.fieldKey
   const addOnKey = typeof req.query.addOnKey === 'string' ? req.query.addOnKey : undefined
-  const { file } = await OrderService.getOrderFile(req.params.id, fieldKey, addOnKey)
+  const { file } = await OrderService.getOrderFile(req.params.id, fieldKey, addOnKey, assignedToFor(req))
   res.setHeader('Content-Type', file.mimeType)
   res.setHeader('Content-Disposition', `attachment; filename="${encodeURIComponent(file.originalName)}"`)
   UploadService.fileReadStream(file.path, file.compression).pipe(res)
@@ -191,6 +203,9 @@ export const adminUploadOutputFile = asyncHandler(async (req: Request, res: Resp
   if (!req.user) throw new ApiError(HttpStatus.UNAUTHORIZED, HttpMessage.UNAUTHORIZED)
   const order = await Order.findById(req.params.id)
   if (!order) throw new ApiError(HttpStatus.NOT_FOUND, HttpMessage.NOT_FOUND)
+  if (req.user.role === 'employee' && String(order.assignedTo) !== String(req.user._id)) {
+    throw new ApiError(HttpStatus.FORBIDDEN, 'This order is not assigned to you')
+  }
 
   const file = (req.file as Express.Multer.File | undefined)
   if (!file) throw new ApiError(HttpStatus.BAD_REQUEST, 'No file uploaded')

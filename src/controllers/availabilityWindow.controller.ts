@@ -12,24 +12,27 @@ const windowSchema = z.object({
   isActive: z.boolean().optional(),
 })
 
-export const listWindows = asyncHandler(async (_req: Request, res: Response) => {
-  const windows = await AvailabilityWindowService.listAvailabilityWindows()
+// Employees manage their own slots; admin/manager keep the legacy global view.
+const ownerIdFor = (req: Request) => (req.user!.role === 'employee' ? req.user!._id : undefined)
+
+export const listWindows = asyncHandler(async (req: Request, res: Response) => {
+  const windows = await AvailabilityWindowService.listAvailabilityWindows(ownerIdFor(req))
   sendSuccess(res, HttpMessage.OK, windows, HttpStatus.OK)
 })
 
 export const createWindow = asyncHandler(async (req: Request, res: Response) => {
   const input = windowSchema.parse(req.body)
-  const window = await AvailabilityWindowService.createAvailabilityWindow(input)
+  const window = await AvailabilityWindowService.createAvailabilityWindow(input, ownerIdFor(req))
   sendSuccess(res, HttpMessage.CREATED, window, HttpStatus.CREATED)
 })
 
 export const updateWindow = asyncHandler(async (req: Request, res: Response) => {
   const input = windowSchema.partial().parse(req.body)
-  const window = await AvailabilityWindowService.updateAvailabilityWindow(req.params.id, input)
+  const window = await AvailabilityWindowService.updateAvailabilityWindow(req.params.id, input, ownerIdFor(req))
   sendSuccess(res, HttpMessage.UPDATED, window, HttpStatus.OK)
 })
 
 export const deleteWindow = asyncHandler(async (req: Request, res: Response) => {
-  await AvailabilityWindowService.deleteAvailabilityWindow(req.params.id)
+  await AvailabilityWindowService.deleteAvailabilityWindow(req.params.id, ownerIdFor(req))
   sendSuccess(res, 'Deleted successfully', null, HttpStatus.OK)
 })

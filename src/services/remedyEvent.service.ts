@@ -22,6 +22,8 @@ interface ListFilters {
   customerId?: string
   page?: number
   limit?: number
+  // Set when the requester is an employee — restricts results to remedies they logged.
+  createdBy?: Types.ObjectId
 }
 
 export async function createRemedyEvent(input: CreateRemedyInput): Promise<IRemedyEvent> {
@@ -67,7 +69,7 @@ export async function createRemedyEvent(input: CreateRemedyInput): Promise<IReme
 export async function listRemedyEvents(
   filters: ListFilters,
 ): Promise<{ items: IRemedyEvent[]; total: number }> {
-  const { from, to, customerId, page = 1, limit = 20 } = filters
+  const { from, to, customerId, page = 1, limit = 20, createdBy } = filters
   const query: Record<string, unknown> = {}
 
   if (from || to) {
@@ -76,6 +78,7 @@ export async function listRemedyEvents(
     if (to) (query.scheduledAt as any).$lte = to
   }
   if (customerId) query.customerId = customerId
+  if (createdBy) query.createdBy = createdBy
 
   const [items, total] = await Promise.all([
     RemedyEvent.find(query)

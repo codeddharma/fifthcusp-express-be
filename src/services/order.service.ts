@@ -427,12 +427,15 @@ export interface ListOrdersOptions {
   to?: string
   page?: number
   limit?: number
+  // Set when the requester is an employee — restricts results to their own orders.
+  assignedTo?: Types.ObjectId
 }
 
 export async function listOrders(opts: ListOrdersOptions): Promise<{ data: IOrder[]; total: number; page: number; limit: number; totalPages: number }> {
   const page = Math.max(1, opts.page ?? 1)
   const limit = Math.min(100, Math.max(1, opts.limit ?? 20))
   const filter: Record<string, unknown> = {}
+  if (opts.assignedTo) filter.assignedTo = opts.assignedTo
   if (opts.paymentStatus) filter.paymentStatus = opts.paymentStatus
   if (opts.orderStatus) filter.orderStatus = opts.orderStatus
   if (opts.serviceSku) filter.serviceSku = opts.serviceSku.toUpperCase()
@@ -448,14 +451,28 @@ export async function listOrders(opts: ListOrdersOptions): Promise<{ data: IOrde
     filter.customerId = c._id
   }
   const [data, total] = await Promise.all([
-    Order.find(filter).sort({ createdAt: -1 }).skip((page - 1) * limit).limit(limit).populate('customerId'),
+    Order.find(filter).sort({ createdAt: -1 }).skip((page - 1) * limit).limit(limit).populate('customerId').populate('assignedTo', 'name email'),
     Order.countDocuments(filter),
   ])
   return { data, total, page, limit, totalPages: Math.ceil(total / limit) }
 }
 
-export async function getOrderById(id: string): Promise<IOrder> {
-  const order = await Order.findById(id).populate('customerId').populate('serviceId')
+function assertAssigned(order: IOrder, assignedTo?: Types.ObjectId): void {
+  if (assignedTo && String(order.assignedTo) !== String(assignedTo)) {
+    throw new ApiError(HttpStatus.FORBIDDEN, 'This order is not assigned to you')
+  }
+}
+
+export async function getOrderById(id: string, assignedTo?: Types.ObjectId): Promise<IOrder> {
+  const order = await Order.findById(id).populate('customerId').populate('serviceId').populate('assignedTo', 'name email')
+  if (!order) throw new ApiError(HttpStatus.NOT_FOUND, HttpMessage.NOT_FOUND)
+  assertAssigned(order, assignedTo)
+  return order
+}
+
+export async function assignOrder(id: string, userId: string | null): Promise<IOrder> {
+  const update = userId ? { assignedTo: userId } : { $unset: { assignedTo: 1 } }
+  const order = await Order.findByIdAndUpdate(id, update, { new: true }).populate('assignedTo', 'name email')
   if (!order) throw new ApiError(HttpStatus.NOT_FOUND, HttpMessage.NOT_FOUND)
   return order
 }
@@ -537,9 +554,10 @@ export async function purgeCompletedOrderFiles(): Promise<number> {
   return purged
 }
 
-export async function getOrderFile(orderId: string, fieldKey: string, addOnKey?: string) {
+export async function getOrderFile(orderId: string, fieldKey: string, addOnKey?: string, assignedTo?: Types.ObjectId) {
   const order = await Order.findById(orderId)
   if (!order) throw new ApiError(HttpStatus.NOT_FOUND, HttpMessage.NOT_FOUND)
+  assertAssigned(order, assignedTo)
   const match = order.fileUploads.find((f) => f.fieldKey === fieldKey && (addOnKey ? f.addOnKey === addOnKey : !f.addOnKey))
   if (!match) throw new ApiError(HttpStatus.NOT_FOUND, 'File not found')
   if (!match.path) throw new ApiError(HttpStatus.NOT_FOUND, 'File has been purged')

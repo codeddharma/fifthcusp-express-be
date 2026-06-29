@@ -5,8 +5,8 @@ import { authorize } from '../../middleware/authorize'
 
 const router = Router()
 
-router.get('/', authenticate, authorize('admin', 'manager'), RemedyEventController.adminListRemedyEvents)
-router.post('/', authenticate, authorize('admin', 'manager'), RemedyEventController.adminCreateRemedyEvent)
+router.get('/', authenticate, authorize('admin', 'manager', 'employee'), RemedyEventController.adminListRemedyEvents)
+router.post('/', authenticate, authorize('admin', 'manager', 'employee'), RemedyEventController.adminCreateRemedyEvent)
 router.delete('/:id', authenticate, authorize('admin', 'manager'), RemedyEventController.adminDeleteRemedyEvent)
 
 export default router

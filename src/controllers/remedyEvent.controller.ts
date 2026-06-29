@@ -30,7 +30,8 @@ export const adminListRemedyEvents = asyncHandler(async (req: Request, res: Resp
   const to = req.query.to ? new Date(req.query.to as string) : undefined
   const customerId = req.query.customerId as string | undefined
 
-  const { items, total } = await RemedyEventService.listRemedyEvents({ from, to, customerId, page, limit })
+  const createdBy = req.user!.role === 'employee' ? req.user!._id : undefined
+  const { items, total } = await RemedyEventService.listRemedyEvents({ from, to, customerId, page, limit, createdBy })
   sendSuccess(res, HttpMessage.OK, items, HttpStatus.OK, {
     page,
     limit,

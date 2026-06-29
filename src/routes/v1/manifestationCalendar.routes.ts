@@ -9,8 +9,8 @@ const router = Router()
 router.get('/', CalendarEventController.getManifestationCalendar)
 
 // ─── Admin — auth + role guard ────────────────────────────────────────────────
-router.get('/manage', authenticate, authorize('admin', 'manager'), CalendarEventController.listCalendarEvents)
-router.get('/manage/:id', authenticate, authorize('admin', 'manager'), CalendarEventController.getCalendarEvent)
+router.get('/manage', authenticate, authorize('admin', 'manager', 'employee'), CalendarEventController.listCalendarEvents)
+router.get('/manage/:id', authenticate, authorize('admin', 'manager', 'employee'), CalendarEventController.getCalendarEvent)
 router.post('/', authenticate, authorize('admin', 'manager'), CalendarEventController.createCalendarEvent)
 router.put('/:id', authenticate, authorize('admin', 'manager'), CalendarEventController.updateCalendarEvent)
 router.delete('/:id', authenticate, authorize('admin', 'manager'), CalendarEventController.deleteCalendarEvent)

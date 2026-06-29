@@ -11,7 +11,8 @@ export const adminListConsultationEvents = asyncHandler(async (req: Request, res
   const to = req.query.to ? new Date(req.query.to as string) : undefined
   const customerId = req.query.customerId as string | undefined
 
-  const { items, total } = await ConsultationEventService.listConsultationEvents({ from, to, customerId, page, limit })
+  const assignedTo = req.user!.role === 'employee' ? req.user!._id : undefined
+  const { items, total } = await ConsultationEventService.listConsultationEvents({ from, to, customerId, page, limit, assignedTo })
   sendSuccess(res, HttpMessage.OK, items, HttpStatus.OK, {
     page,
     limit,

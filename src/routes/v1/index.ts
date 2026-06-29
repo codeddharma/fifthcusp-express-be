@@ -19,6 +19,7 @@ import consultationEventRoutes from './consultationEvent.routes'
 import remedyEventRoutes from './remedyEvent.routes'
 import manifestationCalendarRoutes from './manifestationCalendar.routes'
 import disclaimerBannerRoutes from './disclaimerBanner.routes'
+import internalNoteRoutes from './internalNote.routes'
 
 const router = Router()
 
@@ -46,5 +47,6 @@ router.use('/consultation-events', consultationEventRoutes)
 router.use('/remedy-events', remedyEventRoutes)
 router.use('/manifestation-calendar', manifestationCalendarRoutes)
 router.use('/disclaimer-banner', disclaimerBannerRoutes)
+router.use('/internal-notes', internalNoteRoutes)
 
 export default router
