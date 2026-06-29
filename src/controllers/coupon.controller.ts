@@ -25,6 +25,7 @@ const validateCouponSchema = z.object({
   code: z.string().min(1),
   serviceId: z.string().min(1),
   customerId: z.string().optional(),
+  email: z.string().email().optional(),
   amount: z.number().positive(),
 })
 

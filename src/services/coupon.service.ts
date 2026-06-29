@@ -8,6 +8,7 @@ export interface ValidateCouponInput {
   code: string
   serviceId: string
   customerId?: string
+  email?: string
   amount: number
 }
 
@@ -65,17 +66,24 @@ export async function validateCoupon(input: ValidateCouponInput): Promise<Coupon
     if (!isApplicable) throw new ApiError(HttpStatus.BAD_REQUEST, 'This coupon is not valid for the selected service.')
   }
 
-  // Customer restriction (including birthday/anniversary)
-  if (input.customerId) {
+  // Customer restriction (including birthday/anniversary). When no customerId is
+  // given yet (e.g. checkout preview before the Customer record is created), fall
+  // back to resolving an existing Customer by email so the preview check matches
+  // what order placement will enforce once the customer is upserted.
+  const customerId = input.customerId ?? (input.email
+    ? (await Customer.findOne({ email: input.email.trim().toLowerCase() }))?._id?.toString()
+    : undefined)
+
+  if (customerId) {
     if (coupon.applicableCustomerIds.length > 0) {
       const isApplicable = coupon.applicableCustomerIds.some(
-        (id) => id.toString() === input.customerId,
+        (id) => id.toString() === customerId,
       )
       if (!isApplicable) throw new ApiError(HttpStatus.BAD_REQUEST, 'This coupon is not valid for your account.')
     }
 
     if (coupon.isBirthdayOffer || coupon.isAnniversaryOffer) {
-      const customer = await Customer.findById(input.customerId)
+      const customer = await Customer.findById(customerId)
       if (!customer) throw new ApiError(HttpStatus.NOT_FOUND, 'Customer not found.')
 
       if (coupon.isBirthdayOffer) {

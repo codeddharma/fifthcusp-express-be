@@ -16,6 +16,10 @@ import { razorpayWebhook } from './controllers/webhook.controller'
 
 const app = express()
 
+// Trust the first hop reverse proxy/load balancer so req.ip reflects the real
+// client IP (rate limiters key off this) instead of the proxy's address.
+app.set('trust proxy', 1)
+
 // Security headers
 app.use(helmet())
 
