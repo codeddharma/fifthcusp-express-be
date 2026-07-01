@@ -103,6 +103,11 @@ const createServiceSchema = serviceTypeValidation(
     hasSaleBanner: z.boolean().optional(),
     discountPercentage: z.number().min(0).max(100).optional(),
     isActiveService: z.boolean().optional(),
+    deliveryDays: z.number().int().min(1).optional(),
+    requiresConsultation: z.boolean().optional(),
+    consultationDurationMinutes: z.number().int().min(15).optional(),
+    requiresOutputFile: z.boolean().optional(),
+    feedbackEmailEnabled: z.boolean().optional(),
   }),
 )
 
@@ -123,6 +128,11 @@ const updateServiceSchema = serviceTypeValidation(
     hasSaleBanner: z.boolean().optional(),
     discountPercentage: z.number().min(0).max(100).optional(),
     isActiveService: z.boolean().optional(),
+    deliveryDays: z.number().int().min(1).optional(),
+    requiresConsultation: z.boolean().optional(),
+    consultationDurationMinutes: z.number().int().min(15).optional(),
+    requiresOutputFile: z.boolean().optional(),
+    feedbackEmailEnabled: z.boolean().optional(),
   }),
 )
 
