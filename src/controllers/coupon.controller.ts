@@ -10,6 +10,7 @@ const createCouponSchema = z.object({
   description: z.string().optional(),
   discountType: z.enum(['percentage', 'flat']),
   discountValue: z.number().positive(),
+  maxDiscount: z.number().min(0).optional(),
   minOrderAmount: z.number().min(0).optional(),
   maxUses: z.number().min(0).optional(),
   validFrom: z.string().optional(),
@@ -36,6 +37,7 @@ export const validateCoupon = asyncHandler(async (req: Request, res: Response) =
     code: result.coupon.code,
     discountType: result.coupon.discountType,
     discountValue: result.coupon.discountValue,
+    maxDiscount: result.coupon.maxDiscount,
     discountAmount: result.discountAmount,
     finalAmount: result.finalAmount,
   }, HttpStatus.OK)

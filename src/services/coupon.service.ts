@@ -24,7 +24,10 @@ function isSameDay(d1: Date, d2: Date): boolean {
 
 export function computeDiscount(coupon: ICoupon, amount: number): number {
   if (coupon.discountType === 'percentage') {
-    return Math.round((amount * coupon.discountValue) / 100)
+    const raw = Math.round((amount * coupon.discountValue) / 100)
+    // Cap the discount when maxDiscount is set (e.g. "20% off, up to ₹500").
+    const capped = coupon.maxDiscount && coupon.maxDiscount > 0 ? Math.min(raw, coupon.maxDiscount) : raw
+    return Math.min(capped, amount)
   }
   return Math.min(coupon.discountValue, amount)
 }
@@ -144,6 +147,7 @@ export interface CreateCouponInput {
   description?: string
   discountType: 'percentage' | 'flat'
   discountValue: number
+  maxDiscount?: number
   minOrderAmount?: number
   maxUses?: number
   validFrom?: string

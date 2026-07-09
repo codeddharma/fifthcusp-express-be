@@ -22,7 +22,7 @@ export function emailFooter(): string {
       <p style="margin:0;color:#c4b5fd;font-size:12px;">
         <a href="${env.FRONTEND_URL}" style="color:#7c3aed;text-decoration:none;">${env.FRONTEND_URL.replace(/^https?:\/\//, '')}</a>
         &nbsp;·&nbsp;
-        <a href="mailto:support.thefifthcusp@gmail.com" style="color:#7c3aed;text-decoration:none;">support.thefifthcusp@gmail.com</a>
+        <a href="mailto:support@thefifthcusp.com" style="color:#7c3aed;text-decoration:none;">support@thefifthcusp.com</a>
       </p>
     </td>
   </tr>`

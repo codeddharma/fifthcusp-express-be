@@ -1,8 +1,11 @@
 import { Request, Response } from 'express'
+import { z } from 'zod'
 import * as ConsultationEventService from '../services/consultationEvent.service'
 import { asyncHandler } from '../utils/asyncHandler'
 import { sendSuccess } from '../utils/ApiResponse'
 import { HttpMessage, HttpStatus } from '../utils/httpStatus'
+
+const rescheduleSchema = z.object({ startTime: z.string().datetime() })
 
 export const adminListConsultationEvents = asyncHandler(async (req: Request, res: Response) => {
   const page = req.query.page ? Number(req.query.page) : 1
@@ -24,4 +27,14 @@ export const adminListConsultationEvents = asyncHandler(async (req: Request, res
 export const adminDeleteConsultationEvent = asyncHandler(async (req: Request, res: Response) => {
   await ConsultationEventService.deleteConsultationEvent(req.params.id)
   sendSuccess(res, 'Consultation event deleted', null, HttpStatus.OK)
+})
+
+export const adminRescheduleConsultationEvent = asyncHandler(async (req: Request, res: Response) => {
+  const { startTime } = rescheduleSchema.parse(req.body)
+  const event = await ConsultationEventService.rescheduleConsultationEvent(
+    req.params.id,
+    startTime,
+    req.user!._id,
+  )
+  sendSuccess(res, 'Consultation event rescheduled', event, HttpStatus.OK)
 })

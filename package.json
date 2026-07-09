@@ -5,6 +5,7 @@
   "main": "dist/server.js",
   "scripts": {
     "seed": "ts-node-dev --transpile-only src/seed.ts",
+    "migrate:clear-specialties": "ts-node-dev --transpile-only src/scripts/clearUserSpecialties.ts",
     "dev": "ts-node-dev --respawn --transpile-only src/server.ts",
     "build": "tsc",
     "start": "node dist/server.js",
