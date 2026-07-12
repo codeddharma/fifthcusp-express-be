@@ -197,7 +197,7 @@ const SEED_DATA: Partial<IFaq>[] = [
     ],
   },
   {
-    page: 'tarot',
+    page: 'tarot-reading',
     faqs: [
       {
         question: 'What is tarot reading and how does it work?',
