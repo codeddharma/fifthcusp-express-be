@@ -23,6 +23,24 @@ export const adminCreateRemedyEvent = asyncHandler(async (req: Request, res: Res
   sendSuccess(res, 'Remedy event created', event, HttpStatus.CREATED)
 })
 
+const updateRemedySchema = z.object({
+  customerId: z.string().min(1).optional(),
+  orderId: z.string().optional(),
+  remedyName: z.string().min(1).optional(),
+  notes: z.string().optional(),
+  scheduledAt: z.coerce.date().optional(),
+  resendReminder: z.boolean().optional(),
+})
+
+export const adminUpdateRemedyEvent = asyncHandler(async (req: Request, res: Response) => {
+  const input = updateRemedySchema.parse(req.body)
+  const event = await RemedyEventService.updateRemedyEvent(req.params.id, input, {
+    _id: req.user!._id,
+    role: req.user!.role,
+  })
+  sendSuccess(res, 'Remedy event updated', event, HttpStatus.OK)
+})
+
 export const adminListRemedyEvents = asyncHandler(async (req: Request, res: Response) => {
   const page = req.query.page ? Number(req.query.page) : 1
   const limit = req.query.limit ? Number(req.query.limit) : 20
