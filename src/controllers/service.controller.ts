@@ -84,6 +84,9 @@ const serviceTypeValidation = (schema: z.ZodObject<z.ZodRawShape>) =>
         message: 'numerology, consultation, reports_basic, reports_advanced types are only valid for the astrology page',
       })
     }
+    if (typeof data.mrp === 'number' && typeof data.price === 'number' && data.price > data.mrp) {
+      ctx.addIssue({ code: z.ZodIssueCode.custom, path: ['price'], message: 'Sale price cannot exceed MRP' })
+    }
   })
 
 const createServiceSchema = serviceTypeValidation(
@@ -91,6 +94,7 @@ const createServiceSchema = serviceTypeValidation(
     title: z.string().min(1),
     subtitle: z.string().min(1),
     description: z.string().min(1),
+    mrp: z.number().min(0).optional(),
     price: z.number().min(0),
     type: z.enum(['basic', 'advanced', 'practice', 'numerology', 'consultation', 'reports_basic', 'reports_advanced']),
     pages: z.array(pageWithOrderSchema).min(1),
@@ -101,7 +105,6 @@ const createServiceSchema = serviceTypeValidation(
     isInSale: z.boolean().optional(),
     saleTitle: z.string().optional(),
     hasSaleBanner: z.boolean().optional(),
-    discountPercentage: z.number().min(0).max(100).optional(),
     isActiveService: z.boolean().optional(),
     deliveryDays: z.number().int().min(1).optional(),
     requiresConsultation: z.boolean().optional(),
@@ -116,6 +119,7 @@ const updateServiceSchema = serviceTypeValidation(
     title: z.string().min(1).optional(),
     subtitle: z.string().min(1).optional(),
     description: z.string().min(1).optional(),
+    mrp: z.number().min(0).optional(),
     price: z.number().min(0).optional(),
     type: z.enum(['basic', 'advanced', 'practice', 'numerology', 'consultation', 'reports_basic', 'reports_advanced']).optional(),
     pages: z.array(pageWithOrderSchema).min(1).optional(),
@@ -126,7 +130,6 @@ const updateServiceSchema = serviceTypeValidation(
     isInSale: z.boolean().optional(),
     saleTitle: z.string().optional(),
     hasSaleBanner: z.boolean().optional(),
-    discountPercentage: z.number().min(0).max(100).optional(),
     isActiveService: z.boolean().optional(),
     deliveryDays: z.number().int().min(1).optional(),
     requiresConsultation: z.boolean().optional(),

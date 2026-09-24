@@ -8,6 +8,7 @@ import { Customer } from '../models/Customer'
 import { Service } from '../models/Service'
 import { ApiError } from '../utils/ApiError'
 import { HttpMessage, HttpStatus } from '../utils/httpStatus'
+import { toPaise } from '../utils/money'
 import { sendMail } from '../utils/mailer'
 import { paymentLinkInviteHtml } from '../emails/paymentLinkInvite'
 
@@ -143,7 +144,7 @@ export async function createRazorpayOrderForLink(token: string): Promise<{
   }
 
   const rzOrder = await razorpay.orders.create({
-    amount: link.amount * 100,
+    amount: toPaise(link.amount),
     currency: 'INR',
     receipt: `pl-${token.slice(0, 12)}`,
     notes: { paymentLinkToken: token },
@@ -154,7 +155,7 @@ export async function createRazorpayOrderForLink(token: string): Promise<{
 
   return {
     razorpayOrderId: rzOrder.id,
-    amount: link.amount * 100,
+    amount: toPaise(link.amount),
     currency: 'INR',
     key: env.RAZORPAY_KEY_ID,
     prefill: { name: link.prefillName, email: link.prefillEmail, contact: link.prefillPhone },

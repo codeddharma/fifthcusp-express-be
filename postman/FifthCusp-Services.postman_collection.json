@@ -108,7 +108,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"title\": \"Tarot Card Reading\",\n  \"subtitle\": \"Guidance through the tarot\",\n  \"description\": \"A personalised tarot reading session covering your past, present, and future. Gain clarity on love, career, and life decisions through the ancient wisdom of tarot.\",\n  \"price\": 799,\n  \"isInSale\": true,\n  \"saleTitle\": \"Introductory Offer\",\n  \"hasSaleBanner\": true,\n  \"discountPercentage\": 15,\n  \"isActiveService\": true\n}",
+              "raw": "{\n  \"title\": \"Tarot Card Reading\",\n  \"subtitle\": \"Guidance through the tarot\",\n  \"description\": \"A personalised tarot reading session covering your past, present, and future. Gain clarity on love, career, and life decisions through the ancient wisdom of tarot.\",\n  \"mrp\": 799,\n  \"price\": 679.15,\n  \"isInSale\": true,\n  \"saleTitle\": \"Introductory Offer\",\n  \"hasSaleBanner\": true,\n  \"isActiveService\": true\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -140,7 +140,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"price\": 899,\n  \"isInSale\": true,\n  \"saleTitle\": \"Weekend Special\",\n  \"hasSaleBanner\": true,\n  \"discountPercentage\": 10\n}",
+              "raw": "{\n  \"mrp\": 899,\n  \"price\": 809.10,\n  \"isInSale\": true,\n  \"saleTitle\": \"Weekend Special\",\n  \"hasSaleBanner\": true\n}",
               "options": {
                 "raw": {
                   "language": "json"

@@ -2,6 +2,7 @@ import { SortOrder } from 'mongoose'
 import { ApiError } from '../utils/ApiError'
 import { HttpMessage, HttpStatus } from '../utils/httpStatus'
 import { FieldType, IFileUploadField, IFormInput, IService, IServicePage, Service, ServiceType } from '../models/Service'
+import { deriveDiscountPct, legacyToMrpPricing } from '../utils/money'
 
 // ─── SKU generator ────────────────────────────────────────────────────────────
 
@@ -1589,16 +1590,33 @@ async function applyPageOrderChanges(serviceId: string, oldPages: IServicePage[]
 }
 
 export async function createService(data: Partial<IService>): Promise<IService> {
+  const price = data.price ?? 0
+  const mrp = data.mrp ?? price
+  if (price > mrp) throw new ApiError(HttpStatus.BAD_REQUEST, 'Sale price cannot exceed MRP')
   if (data.pages) await insertPages(data.pages)
-  return Service.create({ ...data, sku: generateSku(data.title ?? 'SERVICE') })
+  return Service.create({
+    ...data,
+    mrp,
+    discountPercentage: deriveDiscountPct(mrp, price),
+    sku: generateSku(data.title ?? 'SERVICE'),
+  })
 }
 
 export async function updateService(id: string, data: Partial<IService>): Promise<IService> {
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const { sku: _sku, ...safeData } = data as IService & { sku?: string }
+  const current = await Service.findById(id)
+  if (!current) throw new ApiError(HttpStatus.NOT_FOUND, HttpMessage.NOT_FOUND)
+  // A partial update may carry only one of mrp/price — merge with the stored values
+  // (legacy records have no mrp, so it falls back to price) and re-derive the discount.
+  if (safeData.mrp !== undefined || safeData.price !== undefined) {
+    const price = safeData.price ?? current.price
+    const mrp = safeData.mrp ?? current.mrp ?? price
+    if (price > mrp) throw new ApiError(HttpStatus.BAD_REQUEST, 'Sale price cannot exceed MRP')
+    safeData.mrp = mrp
+    safeData.discountPercentage = deriveDiscountPct(mrp, price)
+  }
   if (safeData.pages) {
-    const current = await Service.findById(id)
-    if (!current) throw new ApiError(HttpStatus.NOT_FOUND, HttpMessage.NOT_FOUND)
     await applyPageOrderChanges(id, current.pages, safeData.pages)
   }
   const service = await Service.findByIdAndUpdate(id, safeData, { new: true, runValidators: true })
@@ -1617,6 +1635,8 @@ export async function seedServices(): Promise<void> {
   const pageCounters: Record<string, number> = {}
   const withSkus = SEED_DATA.map((s) => ({
     ...s,
+    // Seed literals use the legacy price + discount % shape; store them in the MRP model.
+    ...legacyToMrpPricing(s.price ?? 0, s.discountPercentage ?? 0),
     sku: s.sku ?? generateSku(s.title ?? 'SERVICE'),
     pages: s.pages.map((page) => {
       const order = pageCounters[page] ?? 0

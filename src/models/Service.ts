@@ -75,6 +75,9 @@ export interface IService extends Document {
   title: string
   subtitle: string
   description: string
+  /** List price (MRP), shown struck-through when above `price`. Absent on legacy records → treat as `price`. */
+  mrp?: number
+  /** Sale / offer price — the amount actually charged. */
   price: number
   type: ServiceType
   pages: IServicePage[]
@@ -85,6 +88,7 @@ export interface IService extends Document {
   isInSale: boolean
   saleTitle?: string
   hasSaleBanner: boolean
+  /** Derived from `mrp` and `price` on create/update — not applied again at checkout. */
   discountPercentage: number
   isActiveService: boolean
   soldCount: number
@@ -187,6 +191,7 @@ const ServiceSchema = new Schema<IService>(
     title: { type: String, required: true, trim: true },
     subtitle: { type: String, required: true, trim: true },
     description: { type: String, required: true, trim: true },
+    mrp: { type: Number, min: 0 },
     price: { type: Number, required: true, min: 0 },
     type: { type: String, enum: SERVICE_TYPES, required: true },
     pages: { type: [ServicePageSchema], required: true },

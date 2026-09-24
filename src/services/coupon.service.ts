@@ -3,6 +3,7 @@ import { Coupon, ICoupon } from '../models/Coupon'
 import { Customer } from '../models/Customer'
 import { ApiError } from '../utils/ApiError'
 import { HttpMessage, HttpStatus } from '../utils/httpStatus'
+import { roundMoney } from '../utils/money'
 
 export interface ValidateCouponInput {
   code: string
@@ -24,7 +25,7 @@ function isSameDay(d1: Date, d2: Date): boolean {
 
 export function computeDiscount(coupon: ICoupon, amount: number): number {
   if (coupon.discountType === 'percentage') {
-    const raw = Math.round((amount * coupon.discountValue) / 100)
+    const raw = roundMoney((amount * coupon.discountValue) / 100)
     // Cap the discount when maxDiscount is set (e.g. "20% off, up to ₹500").
     const capped = coupon.maxDiscount && coupon.maxDiscount > 0 ? Math.min(raw, coupon.maxDiscount) : raw
     return Math.min(capped, amount)
@@ -112,7 +113,7 @@ export async function validateCoupon(input: ValidateCouponInput): Promise<Coupon
   }
 
   const discountAmount = computeDiscount(coupon, input.amount)
-  const finalAmount = Math.max(0, input.amount - discountAmount)
+  const finalAmount = Math.max(0, roundMoney(input.amount - discountAmount))
 
   return { coupon, discountAmount, finalAmount }
 }

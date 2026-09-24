@@ -55,6 +55,7 @@ export interface IServiceSnapshot {
   title: string
   type: string
   basePrice: number
+  mrp?: number
   discountPercentage: number
   consultationDurationMinutes?: number
 }
@@ -180,6 +181,7 @@ const ServiceSnapshotSchema = new Schema<IServiceSnapshot>(
     title: { type: String, required: true },
     type: { type: String, required: true },
     basePrice: { type: Number, required: true },
+    mrp: { type: Number },
     discountPercentage: { type: Number, required: true, default: 0 },
     consultationDurationMinutes: { type: Number },
   },

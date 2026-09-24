@@ -7,6 +7,7 @@ import { ApiError } from '../utils/ApiError'
 import { HttpMessage, HttpStatus } from '../utils/httpStatus'
 import { generateOrderNumber } from '../utils/generateOrderNumber'
 import { buildFormSchema } from '../utils/buildFormSchema'
+import { roundMoney, toPaise } from '../utils/money'
 import { sendMail } from '../utils/mailer'
 import { orderConfirmationHtml } from '../emails/orderConfirmation'
 import { consultationBookingLinkHtml } from '../emails/consultationBookingLink'
@@ -78,16 +79,16 @@ function computePricing(
   couponCode?: string,
   couponDiscount = 0,
 ): IOrderPricing {
-  const basePrice = service.price * quantity
-  const subtotal = basePrice + addOnsTotal
-  const discountPercentage = service.discountPercentage ?? 0
-  const discountAmount = Math.round((subtotal * discountPercentage) / 100)
-  const finalAmount = Math.max(0, subtotal - discountAmount - couponDiscount)
+  // `price` is already the sale price (the MRP markdown is baked in), so no % discount is
+  // applied here — only a coupon can reduce the total further.
+  const basePrice = roundMoney(service.price * quantity)
+  const subtotal = roundMoney(basePrice + addOnsTotal)
+  const finalAmount = Math.max(0, roundMoney(subtotal - couponDiscount))
   return {
     basePrice,
     addOnsTotal,
-    discountPercentage,
-    discountAmount,
+    discountPercentage: 0,
+    discountAmount: 0,
     couponCode,
     couponDiscount,
     subtotal,
@@ -188,7 +189,7 @@ export async function createOrder(input: CreateOrderInput): Promise<CreateOrderR
   let razorpayOrder: { id: string; amount: number | string; currency: string }
   try {
     razorpayOrder = await razorpay.orders.create({
-      amount: pricing.finalAmount * 100,
+      amount: toPaise(pricing.finalAmount),
       currency: pricing.currency,
       receipt: orderNumber,
       notes: { orderNumber, serviceSku: service.sku },
@@ -212,6 +213,7 @@ export async function createOrder(input: CreateOrderInput): Promise<CreateOrderR
       title: service.title,
       type: service.type,
       basePrice: service.price,
+      mrp: service.mrp ?? service.price,
       discountPercentage: service.discountPercentage ?? 0,
       consultationDurationMinutes: service.requiresConsultation ? service.consultationDurationMinutes : undefined,
     },
@@ -233,7 +235,7 @@ export async function createOrder(input: CreateOrderInput): Promise<CreateOrderR
   return {
     orderNumber,
     razorpayOrderId: razorpayOrder.id,
-    amount: pricing.finalAmount * 100,
+    amount: toPaise(pricing.finalAmount),
     currency: pricing.currency,
     key: env.RAZORPAY_KEY_ID,
     prefill: { name: customer.name, email: customer.email, contact: customer.phone },
